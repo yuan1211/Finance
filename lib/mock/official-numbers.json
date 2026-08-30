@@ -1,0 +1,24 @@
+{
+  "note": "데모용 기관 대표번호 샘플입니다. 실제 상담 시에는 반드시 각 기관 홈페이지에서 직접 확인하세요.",
+  "organizations": [
+    { "name": "금융감독원", "aliases": ["금감원", "금융감독원 민원센터"], "official": ["1332"], "category": "감독기관" },
+    { "name": "경찰청 사이버수사국", "aliases": ["경찰청", "사이버수사대", "112"], "official": ["112", "182"], "category": "수사기관" },
+    { "name": "대검찰청", "aliases": ["검찰청", "지검", "서울중앙지검"], "official": ["1301"], "category": "수사기관" },
+    { "name": "국민은행", "aliases": ["KB국민은행", "국민"], "official": ["1588-9999"], "category": "은행" },
+    { "name": "신한은행", "aliases": ["신한"], "official": ["1577-8000"], "category": "은행" },
+    { "name": "우리은행", "aliases": ["우리"], "official": ["1588-5000"], "category": "은행" },
+    { "name": "하나은행", "aliases": ["KEB하나은행", "하나"], "official": ["1599-1111"], "category": "은행" },
+    { "name": "NH농협은행", "aliases": ["농협", "농협은행"], "official": ["1661-3000"], "category": "은행" },
+    { "name": "카카오뱅크", "aliases": ["카뱅"], "official": ["1599-3333"], "category": "은행" },
+    { "name": "토스뱅크", "aliases": ["토스"], "official": ["1661-7654"], "category": "은행" },
+    { "name": "IBK기업은행", "aliases": ["기업은행"], "official": ["1588-2588"], "category": "은행" },
+    { "name": "국세청", "aliases": ["세무서", "홈택스"], "official": ["126"], "category": "행정기관" },
+    { "name": "건강보험공단", "aliases": ["건보공단"], "official": ["1577-1000"], "category": "행정기관" },
+    { "name": "우체국", "aliases": ["우정사업본부"], "official": ["1588-1300"], "category": "행정기관" }
+  ],
+  "helplines": [
+    { "name": "경찰 신고", "number": "112", "desc": "보이스피싱 피해 발생 시 즉시 신고" },
+    { "name": "금융감독원 상담", "number": "1332", "desc": "보이스피싱 상담 및 지급정지 안내" },
+    { "name": "불법스팸 신고", "number": "118", "desc": "스미싱 문자·악성 링크 신고" }
+  ]
+}

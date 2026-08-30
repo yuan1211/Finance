@@ -1,0 +1,24 @@
+{
+  "note": "데모용 가상 신고 이력 데이터입니다. 실제 신고 DB가 아니며 모든 번호/계좌는 존재하지 않는 가상값입니다.",
+  "updatedAt": "2026-08-01",
+  "phones": [
+    { "number": "01099887766", "reports": 47, "lastReportedAt": "2026-08-19", "type": "검찰청 사칭", "memo": "구속영장·자산검수 명목 송금 유도" },
+    { "number": "0269001234", "reports": 31, "lastReportedAt": "2026-08-22", "type": "금융감독원 사칭", "memo": "안전계좌 이체 요구" },
+    { "number": "01055554444", "reports": 22, "lastReportedAt": "2026-08-11", "type": "가족 사칭(메신저피싱)", "memo": "휴대폰 파손, 원격제어 앱 설치 유도" },
+    { "number": "0316667777", "reports": 18, "lastReportedAt": "2026-07-30", "type": "저금리 대환대출 사기", "memo": "선입금·기존대출 상환 요구" },
+    { "number": "0708123456", "reports": 65, "lastReportedAt": "2026-08-25", "type": "은행 사칭", "memo": "대표번호 유사 발신번호 변작" },
+    { "number": "01033332222", "reports": 12, "lastReportedAt": "2026-08-05", "type": "택배 스미싱", "memo": "주소지 오류 확인 링크 유포" },
+    { "number": "025553333", "reports": 9, "lastReportedAt": "2026-06-28", "type": "투자리딩방", "memo": "원금보장 수익률 광고" }
+  ],
+  "accounts": [
+    { "number": "11020345678901", "bank": "가상은행", "reports": 26, "lastReportedAt": "2026-08-21", "memo": "대포통장 의심 계좌" },
+    { "number": "35201234567890", "bank": "샘플농협", "reports": 14, "lastReportedAt": "2026-08-14", "memo": "다수 소액 이체 후 즉시 인출" },
+    { "number": "1002987654321", "bank": "예시우리", "reports": 33, "lastReportedAt": "2026-08-24", "memo": "안전계좌 명목 수취" },
+    { "number": "9403110022334", "bank": "데모신협", "reports": 7, "lastReportedAt": "2026-07-19", "memo": "대환대출 선입금 수취" }
+  ],
+  "urls": [
+    { "domain": "kr-parcel-check.top", "reports": 41, "memo": "택배 사칭 악성앱 배포" },
+    { "domain": "safe-account-verify.net", "reports": 19, "memo": "금융기관 사칭 피싱 사이트" },
+    { "domain": "gov-notice-kr.info", "reports": 27, "memo": "공공기관 사칭 문서 위장" }
+  ]
+}

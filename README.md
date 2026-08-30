@@ -1,36 +1,268 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 피싱브레이크 (Pishing Break)
 
-## Getting Started
+> 혼자 판단하지 않게 하는 AI 금융 중재자 — 2026 금융 AI Challenge 예선 제출용 MVP
 
-First, run the development server:
+보이스피싱이 의심되는 통화를 **AI가 실시간으로 들으면서** 위험도를 갱신하고, 통화가 끝난 뒤라면
+내용을 텍스트로 입력해 같은 분석을 받을 수 있습니다. 위험이 감지되면 사용자의 판단을 일시 중단시킨 뒤
+**객관적 검증**과 **심리적 안정**을 함께 제공합니다.
+
+---
+
+## 1. 핵심 흐름
+
+| 단계 | 화면 | 하는 일 |
+|---|---|---|
+| 01 감지 (실시간) | `/live` | 스피커폰 통화를 마이크로 받아 Web Speech API로 실시간 전사 → 5~10초 단위 디바운스로 위험도를 계속 갱신 → 기준 초과 시 개입 배너 |
+| 01 감지 (텍스트) | `/check` | 통화 요약·문자 원문·발신 정보 입력, 또는 **문자 캡처 이미지 업로드** → LLM이 화면을 읽고 위험도(낮음/중간/높음)·점수·사기 유형·근거 키워드를 JSON으로 산출 |
+| 02 분석 | `/result` | 위험도 게이지, 판단 근거 키워드, 지금 멈춰야 할 행동, AI의 첫 안정화 메시지 |
+| 03 역검증 | `/verify` | 1차 신고 이력 대조 → 2차 공식 대표번호 진위확인 → 3차 비상연락처 상황 요약문 발송(시뮬레이션) |
+| 04 심리적 지원 | `/support` | 케이스 맥락을 그대로 물고 있는 스트리밍 채팅 상담 |
+| 05 사후 지원 | `/followup` | 타임라인·신고용 사실관계·다음 조치 자동 정리, 112/1332 연결, 지급정지 절차 안내, **신고서 양식 인쇄·PDF 저장**, `.txt` 리포트 저장 |
+
+부가 화면: 랜딩 `/`, 비상연락처 등록 `/contacts`
+
+**로그인 없이 바로 체험할 수 있습니다.** 심사자가 `/check`에서 예시 버튼 한 번만 눌러도 전체 흐름이
+끝까지 이어집니다.
+
+---
+
+## 2. 실행 방법
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.local.example .env.local   # ANTHROPIC_API_KEY 입력 (선택)
+npm run dev                        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### API 키가 없어도 동작합니다
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`ANTHROPIC_API_KEY`가 없거나 API 호출이 실패하면, 동일한 응답 스키마를 만드는 **룰 기반 폴백 엔진**
+(`lib/fallback-analyzer.ts`)으로 자동 전환됩니다. 데모 도중 네트워크가 끊겨도 화면이 멈추지 않습니다.
+현재 어느 엔진으로 동작 중인지는 헤더 배지와 결과 화면의 `Claude 분석` / `룰 기반 폴백` 배지로 표시됩니다.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 배포 (Vercel)
 
-## Learn More
+1. 이 디렉터리를 GitHub 저장소로 push
+2. Vercel에서 Import → Framework: Next.js (자동 감지)
+3. Environment Variables에 `ANTHROPIC_API_KEY` 등록
+4. Deploy
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 3. 기술 스택
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Next.js 16 (App Router) + React 19 + TypeScript**
+- **Tailwind CSS v4** — `app/globals.css`의 `@theme`에 디자인 토큰 정의
+- **Anthropic Claude API** (`@anthropic-ai/sdk`) — 모델 `claude-opus-5`
+  - 위험도 분석 / 사후 리포트: **structured outputs** (`output_config.format` + zod 스키마)로 JSON 형식 보장
+  - 상담 채팅: **스트리밍** 응답
+  - 실시간 위험도 갱신: structured outputs + `effort: "low"` + 시스템 프롬프트 캐싱으로 지연 최소화
+  - 안전 분류기 거절(`stop_reason: "refusal"`)에 대비해 서버사이드 폴백(`fallbacks: "default"`) 활성화,
+    그래도 거절되면 룰 기반 응답으로 대체
+- **Web Speech API** — 인식(`webkitSpeechRecognition`)과 출력(`speechSynthesis`) 모두 사용.
+  별도 키·비용이 없어 해커톤 범위에 적합하며, 미지원 환경에서는 데모 모드/텍스트 입력으로 자동 폴백
+- **Resend** (선택) — 비상연락처 실제 이메일 발송. 키가 없으면 시뮬레이션으로 동작
+- **PWA** — `app/manifest.ts` + 홈 화면 설치용 아이콘. 실제로는 폰에서 쓰는 서비스이므로
+- **DB 없음** — 목업 JSON + 브라우저 저장소만 사용
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 4. 디렉터리 구조
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/
+  page.tsx              랜딩
+  live/                 실시간 통화 감지 (마이크 + 데모 모드)
+  manifest.ts           PWA 매니페스트
+  check/                상황 입력 (텍스트)
+  result/               위험도 분석 결과
+  verify/               역검증 스텝 UI
+  support/              AI 상담 채팅
+  followup/             사후 지원 리포트
+  contacts/             비상연락처 등록
+  api/
+    analyze/            위험도 분석 (structured output)
+    live-analyze/       실시간 위험도 갱신 (누적 트랜스크립트 + 직전 위험도)
+    analyze-image/      문자 캡처 이미지 판독 + 위험도 분석 (Claude vision)
+    verify/             목업 DB 대조 + 상황 요약문 생성
+    chat/               상담 스트리밍
+    summary/            사후 리포트 (structured output)
+    status/             LLM 연동 여부 배지용
+components/
+  ui.tsx                Panel · RiskBadge · StatusPill · PrimaryButton 등
+  shell.tsx             헤더 · 진행 단계 · 푸터
+  live-ui.tsx           실시간 위험도 게이지 · 자막 피드 · 개입 배너
+lib/
+  types.ts              공통 타입
+  anthropic.ts          Claude 클라이언트 + 공통 페르소나/톤 가이드 프롬프트
+  speech.ts             Web Speech API 래퍼 (자동 재시작 · 오류 분류)
+  demo-scripts.ts       데모 모드 통화 대본 3종 + 업로드 대본 파서
+  fallback-analyzer.ts  룰 기반 위험도 분석 (LLM 폴백)
+  live-analyzer.ts      룰 기반 실시간 갱신 + 시나리오 단계 추정 + 역질문 사전
+  verify-signals.ts     환각 차단 — 원문에 없는 위험 신호 폐기
+  score-breakdown.ts    위험 점수 기여도 분해 (결정론적 계산)
+  speech-out.ts         음성 안내 출력 (Web Speech Synthesis)
+  audio-meter.ts        비언어 신호 측정 (말 빠르기·쉼 없음·음량 추세)
+  notify.ts             비상연락처 이메일 발송 (키 없으면 시뮬레이션)
+  eval/dataset.json     라벨링 평가셋 (사기 24 / 정상 12)
+scripts/
+  eval.mjs              정량 평가 러너 (npm run eval → EVAL.md)
+  mock-db.ts            목업 DB 조회 헬퍼
+  case-store.tsx        sessionStorage 기반 케이스 상태 (useSyncExternalStore)
+  mock/
+    reported-numbers.json   가상 신고 이력 (전화/계좌/도메인)
+    official-numbers.json   기관·은행 대표번호 샘플
+    risk-keywords.json      위험 발화 패턴 사전 (9개 카테고리, 가중치 포함)
+```
+
+---
+
+## 5. 프롬프트 설계
+
+모든 프롬프트는 `lib/anthropic.ts`의 `BASE_PERSONA`를 공유합니다. 여기에 역할, 말투 가이드
+(단정 지양·짧은 문장·이모지 금지), 안전 원칙(송금 유도 금지·개인정보 요구 금지·모르면 모른다고 말하기),
+MVP 한계 고지가 담겨 있습니다. 각 API 라우트는 여기에 작업별 지침을 덧붙입니다.
+
+- **위험도 분석** (`api/analyze`) — 위험 키워드 사전과 목업 DB 조회 결과를 함께 넣고, 점수 구간 기준을
+  명시합니다. `detectedSignals.keyword`는 **반드시 원문에 실제로 등장한 표현**이어야 한다고 못박아
+  환각을 막습니다.
+- **실시간 위험도 갱신** (`api/live-analyze`) — 매 호출마다 **누적 트랜스크립트 전체 + 직전 위험도 +
+  이미 보고한 신호 목록**을 함께 넘겨, 대화 흐름 속에서 위험도가 어떻게 움직이는지 판단하게 합니다.
+  응답은 `riskScore` / `trend`(상승·유지·하락) / `newSignals`(이번 구간에 새로 등장한 것만) /
+  `shouldIntervene`(개입 필요 여부) / `liveMessage`(통화 중 곁눈질로 읽는 한 문장) JSON입니다.
+  통화 중 지연이 곧 사용성이므로 `effort: "low"` + 시스템 프롬프트 캐싱을 씁니다. 서버에서 점수 급락을
+  한 번 더 눌러(한 호출당 최대 8점) 게이지가 깜빡이지 않게 합니다.
+- **상황 요약문 생성** (`api/verify`) — 6줄 이내 개조식, 사실만, 민감정보 제외, 시뮬레이션 고지 필수.
+- **심리적 지원 대화** (`api/chat`) — 케이스 맥락(위험도·근거·역검증 결과·원문)을 시스템 프롬프트에
+  주입하고, 3~5문장 제한 + "이미 송금했다"는 발화에 대한 처리 순서를 지정합니다.
+- **사후 요약** (`api/summary`) — 기록에 없는 일을 만들지 말 것, 신고서에 그대로 옮길 수 있는 사실만
+  담을 것, 지급정지 절차 순서를 고정.
+
+---
+
+## 6. 개인정보 및 데이터 처리
+
+- 사용자가 입력한 통화/문자 원문과 대화 로그는 **서버에 저장하지 않습니다.** API 라우트는 요청을 받아
+  응답만 돌려주는 무상태(stateless) 구조입니다.
+- 케이스 상태는 브라우저 **sessionStorage**에만 유지되며 탭을 닫으면 사라집니다. 사후 지원 화면의
+  "기록 삭제하고 새로 시작"으로 즉시 지울 수 있습니다.
+- 비상연락처는 재사용을 위해 **localStorage**에 저장됩니다. 3차 검증에서 실제 알림을 보낼 때만
+  해당 요청에 실려 서버를 거치며, 서버에 남지 않습니다. `RESEND_API_KEY`가 없으면 발송 자체가
+  일어나지 않고 시뮬레이션으로 처리되며, 화면에 그 사실을 명시합니다.
+- 화면에 표시되는 신고 이력·계좌·전화번호는 **전부 가상의 샘플 데이터**입니다.
+- 실시간 감지에서 인식된 음성 텍스트도 서버에 저장하지 않습니다. 세션 종료 시 통화 원문을 남길지
+  사용자가 직접 고르며, **기본값은 원문 삭제**(위험 신호 문구와 분석 결과만 다음 단계로 전달)입니다.
+- 단, Chrome의 Web Speech API 특성상 마이크 오디오는 브라우저 제조사 인식 서버로 전송됩니다.
+  이 점은 `/live` 화면에 그대로 고지했습니다.
+
+---
+
+## 7. 실시간 감지는 어떻게 동작하나
+
+**전제:** iOS·Android 모두 OS 정책상 앱이 통화 오디오에 직접 접근할 수 없습니다. 그래서 통화를
+가로채는 대신, **스피커폰으로 나오는 소리를 기기 마이크로 받는** 방식을 씁니다.
+
+```
+마이크 → Web Speech API(브라우저 내장 STT) → 문장 단위 트랜스크립트 누적
+      → 디바운스(60자 누적 또는 7초 경과) → POST /api/live-analyze
+      → 위험도 갱신 → 기준 초과 시 개입 배너 → /verify로 연결
+```
+
+- **디바운스**: 문장마다 호출하지 않고, `60자 누적` 또는 `7초 경과 + 12자 이상`일 때만 호출합니다.
+  요청은 항상 1개만 떠 있고, 실패한 구간은 버리지 않고 다음 주기에 다시 보냅니다.
+- **폴백**: Chrome 계열이 아니거나 마이크 권한이 없으면 데모 모드 또는 `/check` 텍스트 입력으로
+  자동 안내합니다. `ANTHROPIC_API_KEY`가 없으면 `lib/live-analyzer.ts`의 룰 기반으로 동일한 형태의
+  응답을 만듭니다.
+- **데모 모드**: 심사 PC에서 마이크를 못 쓰는 경우를 위해, 통화 대본 3종(검찰 사칭 / 가족 사칭 /
+  정상 은행 안내 대조군)이 실제 통화 속도로 재생됩니다. 마이크 인식과 **완전히 같은 분석 경로**를
+  지나므로 시연 결과가 동일합니다. `상대: 발화` 형식의 `.txt` 대본을 직접 올릴 수도 있습니다.
+- **시나리오 단계 예측**: 보이스피싱은 `접근 → 신뢰구축 → 고립 → 압박 → 편취` 대본을 따릅니다.
+  매 호출마다 현재 단계와 **다음에 올 요구**를 함께 판정해, 경고를 예측으로 바꿉니다.
+  단계는 점수와 마찬가지로 뒤로 되돌아가지 않습니다(이미 나온 고립 발화는 취소되지 않으므로).
+- **역질문 코칭**: 사용자가 상대에게 그대로 소리 내어 읽을 검증 질문을 실시간 생성합니다.
+  진짜 기관·가족이면 곧바로 답하지만 사칭범은 답하지 못하는 질문이며, 위험도가 '낮음'이면
+  만들지 않습니다(정상 통화 중 상대를 의심하게 만드는 것도 실패이므로).
+- **환각 차단**: LLM이 돌려준 위험 신호의 `keyword`가 원문에 실제로 등장하는지 서버에서
+  기계적으로 대조하고(`lib/verify-signals.ts`), 없으면 폐기합니다. 프롬프트 지시와 별개의 2차 방어선입니다.
+- **점수 기여도 분해**: "왜 82점인가"에 답합니다. 어느 요인이 몇 점을 보탰는지(`신고이력 +35`,
+  `안전계좌·송금 유도 +33` …) 결정론적으로 계산해 함께 보여 줍니다. LLM이 최종 점수를 매긴 경우
+  규칙 기반 산출값도 나란히 표시해, 두 값의 차이가 곧 "Claude가 문맥을 보고 얼마나 조정했는가"가 됩니다.
+- **비언어 신호**: 무슨 말을 했는지가 아니라 어떻게 말하고 있는지를 잽니다. Web Audio API로
+  말이 이어진 시간 비율·최장 연속 발화·말 빠르기·음량 추세를 측정해, 압박 패턴이 보일 때만
+  프롬프트에 보조 근거로 넘깁니다. **이것만으로 위험도를 올리지는 않습니다** — 빠르게 말하는
+  정상 상담원도 많기 때문입니다.
+- **음성 안내 출력**: 통화 중에는 화면을 볼 수 없습니다. 개입이 필요한 순간의 경고와 역질문을
+  소리로도 읽어 줍니다(기기 내 처리, 외부 전송 없음). 마이크 모드에서는 스피커 소리가 다시 인식되는
+  되먹임을 막기 위해, 안내가 나가는 동안 인식 결과를 버립니다.
+- **음성 데이터 고지**: Chrome의 Web Speech API는 마이크 음성을 브라우저 제조사 인식 서버로 보냅니다.
+  이 사실을 화면에 그대로 표시했습니다. 세션 종료 시 통화 원문을 남길지 사용자가 고르며,
+  **기본값은 "원문 삭제, 위험 신호와 분석 결과만 남기기"** 입니다.
+
+---
+
+## 8. 접근성과 사후 지원
+
+- **큰 글씨 모드**: 헤더의 `큰 글씨` 토글. 실제 피해자 다수가 고령층이라는 점을 반영했습니다.
+  루트 `font-size`를 키워 rem 기반 레이아웃 전체가 함께 커지고, 설정은 브라우저에 남습니다.
+- **한눈에 보기**: 분석 결과 맨 위에 결론만 세 줄로 먼저 보여 줍니다. 긴 설명을 읽기 어려운
+  상황에서도 "무엇을 하지 말아야 하는지"가 첫 화면에 들어옵니다.
+- **신고서 양식 인쇄 / PDF 저장**: 사후 지원 화면에서 경찰서·은행 제출용 A4 양식을 바로 인쇄하거나
+  PDF로 저장할 수 있습니다. jsPDF로 PDF를 만들려면 한글 폰트를 통째로 임베드해야 해 번들이 수 MB
+  늘어나므로, 브라우저 인쇄(`@media print`)로 시스템 한글 폰트를 그대로 쓰는 쪽을 택했습니다.
+
+---
+
+## 9. 정량 평가
+
+라벨링된 통화 대본 **36건(사기 24 / 정상 12)** 을 한 턴씩 실시간 분석 API에 흘려보내며,
+실사용과 동일한 경로(누적 트랜스크립트 + 직전 위험도 + 직전 단계)로 지표를 측정합니다.
+
+```bash
+npm run dev      # 다른 터미널에서
+npm run eval     # → 콘솔 출력 + EVAL.md 생성
+```
+
+**룰 기반 폴백 기준선** (`ANTHROPIC_API_KEY` 미설정 상태)
+
+| 지표 | 값 |
+|---|---|
+| 탐지율 (Recall) | **70.8%** (17/24) |
+| 오탐률 (FPR) | **0.0%** (0/12) |
+| 정밀도 / F1 | 100.0% / 82.9% |
+| **요구 선행률** | **64.7%** |
+| 평균 선행 턴 | 1.12 턴 |
+| 평균 위험 점수 | 사기 52.7 vs 정상 6.8 |
+
+**요구 선행률**이 이 서비스의 핵심 지표입니다. 사기를 사후에 알아채는 것은 의미가 없고,
+돈을 요구받기 **전에** 멈춰 세워야 피해가 발생하지 않기 때문입니다. 평균 1.12턴 앞서 개입했다는 것은
+"안전계좌로 이체하세요"라는 말이 나오기 전에 이미 경고가 떠 있었다는 뜻입니다.
+
+읽는 법 두 가지:
+
+- **오탐률 0%는 운영점이 보수적이라는 뜻이기도 합니다.** 정상 통화를 한 건도 사기로 몰지 않은 대신
+  탐지율을 29% 놓쳤습니다. 금융 서비스에서 오경보는 곧 서비스 이탈이므로 의도한 방향이지만,
+  실서비스라면 이 균형점을 다시 잡아야 합니다.
+- **위 수치는 LLM이 아닌 룰 기반 폴백의 기준선입니다.** 놓친 7건은 대부분 키워드 사전에 없는 표현
+  (합의금 요구, 인증번호 대리 수령 등)이었고, 문맥을 읽는 Claude 경로에서는 개선될 여지가 큽니다.
+  `ANTHROPIC_API_KEY`를 설정하고 `npm run eval`을 다시 돌리면 같은 표가 Claude 기준으로 생성되어
+  그대로 ablation 비교가 됩니다.
+- 평가셋을 보고 사전을 고쳐 넣는 것은 점수만 올리고 의미는 없애는 일이라, **키워드 사전은
+  평가 결과에 맞춰 튜닝하지 않았습니다.**
+
+전체 케이스별 결과는 [`EVAL.md`](./EVAL.md)에 있습니다.
+
+---
+
+## 10. MVP 범위에서 제외한 것
+
+- 통신사 회선 연동(Twilio Programmable Voice 등 방식 B) — 유료 계정·공개 웹훅이 필요해 제외
+- 문자(SMS)·카카오 알림톡 발송 — 국내 발송에 사업자 등록과 사전 승인이 필요해 이메일로 대체
+- 오프라인 동작(Service Worker) — 실시간 분석이 네트워크에 의존해 실익이 없어 제외
+- 오디오 파일 업로드 STT — Web Speech API는 파일을 전사할 수 없고 별도 STT 키가 없어, 대신 텍스트
+  대본 재생으로 대체했습니다
+- 음성 스트레스 분석(음성 감정 인식) — 대신 Web Audio API로 잴 수 있는 비언어 지표만 사용
+- 실제 은행/수사기관 API 조회, 실제 문자·카카오 발송
+- 계정 시스템(로그인/회원가입) — 심사자가 바로 체험할 수 있도록 의도적으로 제외
+
+위 항목은 모두 텍스트 입력 기반 시뮬레이션 또는 목업 데이터로 대체했으며, 해당 사실을 각 화면 하단
+안내 문구로 명시했습니다.

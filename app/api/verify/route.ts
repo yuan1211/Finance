@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createPending } from "@/lib/reply-store";
 import { BASE_PERSONA, FALLBACK_BETAS, MODEL, getClient } from "@/lib/anthropic";
 import {
   findOrganization,
@@ -241,10 +242,26 @@ export async function POST(req: Request) {
   const contacts = body.contacts ?? [];
   const notifyMessage = await buildNotifyMessage({ ...body, contacts });
 
+  /*
+   * 회신 대기표를 만든다.
+   * 보내고 끝내면 "그래서 가족이 뭐라고 했는가"가 영영 비어 있게 된다. 메일에 회신 버튼을
+   * 넣어 두면 가족이 한 번 누르는 것만으로 통화 중인 당사자 화면에 답이 도착한다.
+   */
+  const pending =
+    contacts.length > 0
+      ? createPending({
+          respondent: contacts[0].name,
+          message: notifyMessage,
+          scamType: body.analysis?.scamType ?? "판단 보류",
+        })
+      : null;
+
+  const replyUrl = pending ? `${new URL(req.url).origin}/reply/${pending.token}` : undefined;
+
   // 고립을 깨는 단계다. 메일 키가 설정돼 있으면 실제로 발송한다.
   const outcome =
     contacts.length > 0
-      ? await sendEmergencyNotice(contacts, notifyMessage)
+      ? await sendEmergencyNotice(contacts, notifyMessage, replyUrl)
       : { sent: [], missingEmail: [], failed: [], live: isMailEnabled() };
 
   steps.push({
@@ -255,5 +272,12 @@ export async function POST(req: Request) {
     details: buildNotifyDetails(contacts, outcome),
   });
 
-  return NextResponse.json({ steps, notifyMessage });
+  return NextResponse.json({
+    steps,
+    notifyMessage,
+    // 화면은 이 토큰으로 회신이 왔는지 지켜본다. 메일이 실제로 나가지 않았다면 null.
+    replyToken: outcome.live && outcome.sent.length > 0 ? (pending?.token ?? null) : null,
+    respondent: contacts[0]?.name ?? "",
+    mailLive: outcome.live,
+  });
 }

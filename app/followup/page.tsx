@@ -103,11 +103,11 @@ export default function FollowUpPage() {
   };
 
   if (!hydrated || !input) {
-    return <div className="mx-auto max-w-3xl px-5 py-16 text-sm text-fog">불러오는 중…</div>;
+    return <div className="mx-auto max-w-3xl px-4 py-12 text-sm @md:px-5 @md:py-16 text-fog">불러오는 중…</div>;
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-10">
+    <div className="mx-auto max-w-3xl px-4 py-5 @md:px-5 @md:py-10">
       <div className="print-hide">
         <FlowSteps />
       </div>
@@ -197,7 +197,7 @@ export default function FollowUpPage() {
 
           <Panel className="p-6">
             <h2 className="mb-4 text-sm font-bold text-white">신고·상담 창구 연결</h2>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 @md:grid-cols-3">
               {HELPLINES.map((h) => (
                 <a
                   key={h.number}
@@ -221,7 +221,7 @@ export default function FollowUpPage() {
             </div>
           </Panel>
 
-          <div className="print-hide flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <div className="print-hide flex flex-col gap-3 @md:flex-row @md:flex-wrap">
             <PrimaryButton onClick={() => window.print()}>신고서 양식 인쇄 · PDF 저장</PrimaryButton>
             <PrimaryButton tone="ghost" onClick={download}>
               요약 리포트 저장 (.txt)

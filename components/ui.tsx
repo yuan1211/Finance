@@ -27,12 +27,14 @@ export function SectionTitle({
   desc?: string;
 }) {
   return (
-    <div className="mb-6">
+    <div className="mb-4 @md:mb-6">
       {eyebrow && (
-        <p className="mb-2 text-xs font-semibold tracking-[0.2em] text-brand uppercase">{eyebrow}</p>
+        <p className="mb-1.5 text-[10px] font-semibold tracking-[0.18em] text-brand uppercase @md:mb-2 @md:text-xs">
+          {eyebrow}
+        </p>
       )}
-      <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">{title}</h1>
-      {desc && <p className="mt-2 text-sm leading-relaxed text-fog">{desc}</p>}
+      <h1 className="text-lg font-bold tracking-tight text-white @md:text-3xl">{title}</h1>
+      {desc && <p className="mt-1.5 text-[13px] leading-relaxed text-fog @md:mt-2 @md:text-sm">{desc}</p>}
     </div>
   );
 }

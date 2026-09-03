@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:https": "next dev --experimental-https",
+    "tunnel": "npx -y cloudflared tunnel --url http://localhost:3000",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

@@ -85,13 +85,13 @@ export default function SupportPage() {
   };
 
   if (!hydrated || !input) {
-    return <div className="mx-auto max-w-3xl px-5 py-16 text-sm text-fog">불러오는 중…</div>;
+    return <div className="mx-auto max-w-3xl px-4 py-12 text-sm @md:px-5 @md:py-16 text-fog">불러오는 중…</div>;
   }
 
   const waiting = streaming && messages[messages.length - 1]?.role === "user";
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-10">
+    <div className="mx-auto max-w-3xl px-4 py-5 @md:px-5 @md:py-10">
       <FlowSteps />
       <div className="mb-5 flex flex-wrap items-center gap-3">
         {analysis && <RiskBadge level={analysis.riskLevel} score={analysis.riskScore} />}
@@ -169,7 +169,7 @@ export default function SupportPage() {
         </div>
       </Panel>
 
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+      <div className="mt-6 flex flex-col gap-3 @md:flex-row">
         <PrimaryButton href="/followup">상담 마치고 정리하기</PrimaryButton>
         <PrimaryButton href="/verify" tone="ghost">
           역검증 결과 다시 보기

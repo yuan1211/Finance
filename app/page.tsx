@@ -43,14 +43,14 @@ export default function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="mx-auto max-w-5xl px-5 pt-16 pb-12 sm:pt-24">
+      <section className="mx-auto max-w-5xl px-4 pt-10 pb-8 @md:px-5 @md:pt-24 @md:pb-12">
         <div className="pb-fade">
           <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3.5 py-1.5 text-xs font-semibold text-brand">
             <span className="h-1.5 w-1.5 rounded-full bg-brand pb-pulse" />
             2026 금융 AI Challenge · MVP 데모
           </span>
 
-          <h1 className="mt-6 text-4xl leading-[1.15] font-black tracking-tight text-white sm:text-6xl">
+          <h1 className="mt-6 text-4xl leading-[1.15] font-black tracking-tight text-white @md:text-6xl">
             혼자 판단하지 않게 하는
             <br />
             <span className="bg-gradient-to-r from-brand to-safe bg-clip-text text-transparent">
@@ -58,13 +58,13 @@ export default function Home() {
             </span>
           </h1>
 
-          <p className="mt-6 max-w-2xl text-base leading-relaxed text-mist sm:text-lg">
+          <p className="mt-6 max-w-2xl text-base leading-relaxed text-mist @md:text-lg">
             보이스피싱이 의심되는 통화·문자 상황을 입력하면, 피싱브레이크가 위험을 감지하고
             <strong className="font-semibold text-white"> 당신의 판단을 잠시 멈춥니다.</strong> 그리고 AI가
             대신 사실을 확인하고, 확인이 끝날 때까지 곁에서 함께 있습니다.
           </p>
 
-          <div className="mt-9 flex flex-col flex-wrap gap-3 sm:flex-row">
+          <div className="mt-9 flex flex-col flex-wrap gap-3 @md:flex-row">
             <PrimaryButton href="/live" tone="danger" className="px-7 py-3.5 text-base">
               통화 중이신가요? 실시간 감지 시작
             </PrimaryButton>
@@ -83,11 +83,11 @@ export default function Home() {
       </section>
 
       {/* Problem */}
-      <section className="mx-auto max-w-5xl px-5 py-12">
-        <h2 className="mb-6 text-xl font-bold text-white sm:text-2xl">
+      <section className="mx-auto max-w-5xl px-4 py-7 @md:px-5 @md:py-12">
+        <h2 className="mb-6 text-xl font-bold text-white @md:text-2xl">
           왜 경고만으로는 막지 못할까요?
         </h2>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 @md:grid-cols-3">
           {PROBLEMS.map((p) => (
             <Panel key={p.title} className="p-6">
               <h3 className="mb-2 text-sm font-bold text-white">{p.title}</h3>
@@ -98,11 +98,11 @@ export default function Home() {
       </section>
 
       {/* Flow */}
-      <section className="mx-auto max-w-5xl px-5 py-12">
-        <h2 className="mb-2 text-xl font-bold text-white sm:text-2xl">피싱브레이크가 작동하는 방식</h2>
+      <section className="mx-auto max-w-5xl px-4 py-7 @md:px-5 @md:py-12">
+        <h2 className="mb-2 text-xl font-bold text-white @md:text-2xl">피싱브레이크가 작동하는 방식</h2>
         <p className="mb-7 text-sm text-fog">감지 → 중단·역검증 → 심리적 지원 → 사후 지원, 네 단계로 이어집니다.</p>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 @md:grid-cols-2">
           {STEPS.map((s) => (
             <Panel key={s.step} className="p-6">
               <div className="mb-3 flex items-center gap-3">
@@ -118,9 +118,9 @@ export default function Home() {
       </section>
 
       {/* Sample */}
-      <section className="mx-auto max-w-5xl px-5 py-12">
+      <section className="mx-auto max-w-5xl px-4 py-7 @md:px-5 @md:py-12">
         <Panel className="overflow-hidden">
-          <div className="grid gap-0 md:grid-cols-2">
+          <div className="grid gap-0 @3xl:grid-cols-2">
             <div className="p-7">
               <p className="mb-2 text-[11px] font-bold tracking-widest text-fog uppercase">입력 예시</p>
               <p className="rounded-xl border border-line bg-ink/70 p-4 text-[13px] leading-relaxed text-mist">
@@ -129,7 +129,7 @@ export default function Home() {
                 말라고 했어요.”
               </p>
             </div>
-            <div className="border-t border-line/70 bg-danger/[0.05] p-7 md:border-t-0 md:border-l">
+            <div className="border-t border-line/70 bg-danger/[0.05] p-7 @3xl:border-t-0 @3xl:border-l">
               <p className="mb-3 text-[11px] font-bold tracking-widest text-danger uppercase">AI 분석 결과</p>
               <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-danger/15 px-3.5 py-1.5 text-sm font-bold text-danger ring-1 ring-danger/40">
                 <span className="h-2 w-2 rounded-full bg-current pb-pulse" />
@@ -147,9 +147,9 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="mx-auto max-w-5xl px-5 py-12">
+      <section className="mx-auto max-w-5xl px-4 py-7 @md:px-5 @md:py-12">
         <Panel className="border-brand/25 bg-gradient-to-br from-brand/[0.09] to-transparent p-8 text-center">
-          <h2 className="text-xl font-bold text-white sm:text-2xl">지금 의심되는 상황이 있으신가요?</h2>
+          <h2 className="text-xl font-bold text-white @md:text-2xl">지금 의심되는 상황이 있으신가요?</h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-mist">
             결정을 서두르지 마세요. 통화를 끊고 여기에 상황을 적어주시면, 무엇이 사실인지 함께 확인해
             드리겠습니다.
@@ -173,7 +173,7 @@ export default function Home() {
         </Panel>
       </section>
 
-      <section className="mx-auto max-w-5xl px-5 pb-8">
+      <section className="mx-auto max-w-5xl px-4 pb-6 @md:px-5 @md:pb-8">
         <MvpNotice />
       </section>
     </div>

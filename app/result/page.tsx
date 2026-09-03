@@ -44,13 +44,13 @@ export default function ResultPage() {
   }, [hydrated, analysis, router]);
 
   if (!hydrated || !analysis || !input) {
-    return <div className="mx-auto max-w-3xl px-5 py-16 text-sm text-fog">불러오는 중…</div>;
+    return <div className="mx-auto max-w-3xl px-4 py-12 text-sm @md:px-5 @md:py-16 text-fog">불러오는 중…</div>;
   }
 
   const t = tone[analysis.riskLevel];
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-10">
+    <div className="mx-auto max-w-3xl px-4 py-5 @md:px-5 @md:py-10">
       <FlowSteps />
 
       <div className="pb-fade">
@@ -170,7 +170,7 @@ export default function ResultPage() {
           </Panel>
         )}
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-col gap-3 @md:flex-row">
           <PrimaryButton href="/verify" tone={analysis.riskLevel === "낮음" ? "brand" : "danger"}>
             지금 확인해볼게요 · 역검증 시작
           </PrimaryButton>

@@ -27,6 +27,13 @@ body {
     #070b14;
   color: #e8eefb;
   -webkit-font-smoothing: antialiased;
+  /*
+   * 한글은 기본 규칙으로는 단어 중간에서도 줄이 끊긴다 ("자산검수" → "자산검 / 수").
+   * 좁은 폭에서 특히 눈에 띄므로 어절 단위로만 끊게 한다.
+   * 대신 URL 같은 긴 토큰은 넘치지 않도록 예외를 둔다.
+   */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 /* 스크롤바 */
@@ -191,4 +198,398 @@ html[data-large] li {
 /* 인쇄 전용 영역은 화면에서 감춘다 */
 .print-only {
   display: none;
+}
+
+/*
+ * 기기 프레임 (데스크톱 전용).
+ *
+ * 이 서비스는 통화 중에 폰에서 쓰는 것인데, 심사와 시연은 대부분 PC에서 이뤄진다.
+ * 넓은 화면에 폰용 레이아웃이 늘어지면 무엇을 만든 건지 흐려지므로,
+ * 1024px 이상에서만 390px 폭의 기기 안에 넣는다.
+ *
+ * 실제 휴대폰(좁은 화면)에서는 아래 규칙이 전부 적용되지 않는다. 폰에서는 달라지는 것이 없다.
+ */
+.pb-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  /*
+   * 반응형 기준을 뷰포트가 아니라 이 화면의 폭으로 바꾼다.
+   *
+   * 기기 프레임은 폭만 390px로 좁히지만 미디어 쿼리는 여전히 브라우저 뷰포트(예: 1920px)를
+   * 보기 때문에, sm:/lg: 을 쓰면 프레임 안에서도 데스크톱 레이아웃이 적용돼 글자가 깨진다.
+   * 컨테이너 쿼리로 바꾸면 프레임 안(390px)과 실제 휴대폰(390px)이 똑같이 동작한다.
+   *
+   * 부수 효과: container-type은 fixed 자손의 컨테이닝 블록도 만들어 준다.
+   * 덕분에 도우미봇 오버레이가 프레임 안에 갇히고, 따로 transform 을 걸 필요가 없다.
+   */
+  container-type: inline-size;
+}
+
+.pb-indicator {
+  display: none;
+}
+
+.pb-frame-toggle {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .pb-shell[data-framed] {
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    /* 기기가 배경에서 떠 보이도록 페이지 쪽은 더 어둡게 깐다 */
+    background: radial-gradient(1200px 700px at 50% 0%, #0d1524, #05070d 70%);
+  }
+
+  .pb-shell[data-framed] .pb-device {
+    position: relative;
+    width: 390px;
+    height: min(844px, calc(100vh - 4rem));
+    border-radius: 2.75rem;
+    box-shadow:
+      0 0 0 10px #0a1120,
+      0 0 0 11px #24334d,
+      0 30px 70px -18px rgba(0, 0, 0, 0.85);
+  }
+
+  .pb-shell[data-framed] .pb-screen {
+    height: 100%;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-radius: 2.75rem;
+    /* body의 그러데이션이 프레임 바깥에 있으므로 화면 안쪽을 따로 칠한다 */
+    background:
+      radial-gradient(900px 520px at 12% -8%, rgba(59, 166, 255, 0.14), transparent 60%),
+      radial-gradient(760px 460px at 92% 4%, rgba(47, 191, 136, 0.09), transparent 62%),
+      #070b14;
+    padding-bottom: 1.5rem;
+    scrollbar-width: none;
+  }
+  .pb-shell[data-framed] .pb-screen::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pb-shell[data-framed] .pb-indicator {
+    display: block;
+    position: absolute;
+    bottom: 9px;
+    left: 50%;
+    width: 130px;
+    height: 5px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: rgba(232, 238, 251, 0.32);
+    pointer-events: none;
+  }
+
+  .pb-frame-toggle {
+    display: inline-flex;
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 50;
+    cursor: pointer;
+    border: 1px solid #1e2c45;
+    border-radius: 999px;
+    background: rgba(13, 21, 36, 0.9);
+    padding: 0.55rem 1rem;
+    font-size: 12px;
+    font-weight: 600;
+    color: #c8d4e6;
+    backdrop-filter: blur(8px);
+  }
+  .pb-frame-toggle:hover {
+    border-color: #3ba6ff;
+    color: #fff;
+  }
+  .pb-frame-toggle:focus-visible {
+    outline: 2px solid #3ba6ff;
+    outline-offset: 2px;
+  }
+}
+
+/*
+ * 도우미봇 개입 화면.
+ *
+ * 개입은 무시할 수 있는 알림이 아니라 다음 행동을 막는 것이어야 의미가 있다.
+ * 그래서 화면을 덮고, 열려 있는 동안에는 스크롤도 잠근다.
+ */
+.pb-guard {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(3, 6, 12, 0.86);
+  backdrop-filter: blur(6px);
+  animation: pb-guard-in 0.25s ease both;
+}
+
+.pb-guard-panel {
+  width: 100%;
+  max-width: 26rem;
+  max-height: 100%;
+  overflow-y: auto;
+  border: 1px solid #1e2c45;
+  border-radius: 1.25rem;
+  background: linear-gradient(180deg, #111c30, #0b1322);
+  padding: 1.25rem;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.85);
+  animation: pb-panel-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+.pb-guard-panel:focus {
+  outline: none;
+}
+
+/* 잠금 중에는 본문도, 기기 프레임 안쪽도 함께 멈춘다 */
+html[data-locked] body,
+html[data-locked] .pb-screen {
+  overflow: hidden;
+}
+
+/* ---------- 도우미 캐릭터 ---------- */
+
+.pb-char {
+  --ch: #3ba6ff;
+  animation:
+    pb-char-in 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.3) both,
+    pb-char-float 4.5s ease-in-out 0.5s infinite;
+}
+.pb-char.is-alert {
+  --ch: #ff5d5d;
+}
+
+.pb-char-halo {
+  fill: var(--ch);
+  opacity: 0.09;
+  animation: pb-char-halo 3.2s ease-in-out infinite;
+}
+.pb-char-stroke {
+  stroke: var(--ch);
+  fill: none;
+}
+.pb-char-ear {
+  fill: var(--ch);
+  opacity: 0.5;
+}
+.pb-char-led {
+  fill: var(--ch);
+  animation: pb-char-led 1.8s ease-in-out infinite;
+}
+.pb-char-eye {
+  fill: var(--ch);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pb-char-blink 4.2s infinite;
+}
+/* 걱정스러운 눈썹은 위험도가 높을 때만 */
+.pb-char-brows {
+  stroke: var(--ch);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.pb-char.is-alert .pb-char-brows {
+  opacity: 0.8;
+}
+.pb-char-mouth {
+  fill: var(--ch);
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scaleY(0.35);
+}
+.pb-char.is-talking .pb-char-mouth {
+  animation: pb-char-talk 0.34s ease-in-out infinite;
+}
+
+/* ---------- 말풍선 ---------- */
+
+.pb-bubble {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin-top: 0.85rem;
+  cursor: pointer;
+  border: 1px solid #24334d;
+  border-radius: 1rem;
+  background: #0d1524;
+  padding: 0.95rem 1.1rem;
+  text-align: center;
+  min-height: 5.25rem;
+}
+/* 캐릭터 쪽을 가리키는 꼬리 */
+.pb-bubble::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  margin-left: -9px;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 9px solid #24334d;
+}
+.pb-bubble::after {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  margin-left: -8px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #0d1524;
+}
+.pb-bubble:focus-visible {
+  outline: 2px solid #3ba6ff;
+  outline-offset: 2px;
+}
+.pb-bubble-text {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.7;
+  color: #ffffff;
+  word-break: keep-all;
+}
+.pb-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: #3ba6ff;
+  animation: pb-caret 0.9s step-end infinite;
+}
+
+@keyframes pb-char-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.86);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pb-char-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+@keyframes pb-char-halo {
+  0%,
+  100% {
+    opacity: 0.07;
+  }
+  50% {
+    opacity: 0.16;
+  }
+}
+@keyframes pb-char-led {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes pb-char-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.12);
+  }
+}
+@keyframes pb-char-talk {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1.15);
+  }
+}
+@keyframes pb-caret {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes pb-guard-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes pb-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pb-guard,
+  .pb-guard-panel,
+  .pb-char,
+  .pb-char-halo,
+  .pb-char-led,
+  .pb-char-eye,
+  .pb-char-mouth,
+  .pb-caret {
+    animation: none;
+  }
+  /* 입이 멈춘 채로 굳어 보이지 않도록 살짝 벌린 상태로 둔다 */
+  .pb-char.is-talking .pb-char-mouth {
+    transform: scaleY(0.8);
+  }
+}
+
+/* 인쇄할 때는 기기 껍데기를 걷어낸다. 신고서가 프레임 안에서 잘리면 안 된다. */
+@media print {
+  .pb-shell[data-framed] {
+    display: block !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+  }
+  .pb-shell[data-framed] .pb-device {
+    width: auto !important;
+    height: auto !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  .pb-shell[data-framed] .pb-screen {
+    height: auto !important;
+    overflow: visible !important;
+    border-radius: 0 !important;
+    background: none !important;
+    padding-bottom: 0 !important;
+  }
+  .pb-frame-toggle,
+  .pb-indicator,
+  .pb-guard {
+    display: none !important;
+  }
 }

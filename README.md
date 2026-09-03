@@ -15,11 +15,11 @@
 | 01 감지 (실시간) | `/live` | 스피커폰 통화를 마이크로 받아 Web Speech API로 실시간 전사 → 5~10초 단위 디바운스로 위험도를 계속 갱신 → 기준 초과 시 개입 배너 |
 | 01 감지 (텍스트) | `/check` | 통화 요약·문자 원문·발신 정보 입력, 또는 **문자 캡처 이미지 업로드** → LLM이 화면을 읽고 위험도(낮음/중간/높음)·점수·사기 유형·근거 키워드를 JSON으로 산출 |
 | 02 분석 | `/result` | 위험도 게이지, 판단 근거 키워드, 지금 멈춰야 할 행동, AI의 첫 안정화 메시지 |
-| 03 역검증 | `/verify` | 1차 신고 이력 대조 → 2차 공식 대표번호 진위확인 → 3차 비상연락처 상황 요약문 발송(시뮬레이션) |
+| 03 역검증 | `/verify` | 1차 신고 이력 대조 → 2차 공식 대표번호 진위확인 → 3차 비상연락처에 요약문 발송 후 **회신을 자동으로 받아 와 도우미가 알려줌** |
 | 04 심리적 지원 | `/support` | 케이스 맥락을 그대로 물고 있는 스트리밍 채팅 상담 |
 | 05 사후 지원 | `/followup` | 타임라인·신고용 사실관계·다음 조치 자동 정리, 112/1332 연결, 지급정지 절차 안내, **신고서 양식 인쇄·PDF 저장**, `.txt` 리포트 저장 |
 
-부가 화면: 랜딩 `/`, 비상연락처 등록 `/contacts`
+부가 화면: 랜딩 `/`, 비상연락처 등록 `/contacts`, 가족용 회신 `/reply/[token]`
 
 **로그인 없이 바로 체험할 수 있습니다.** 심사자가 `/check`에서 예시 버튼 한 번만 눌러도 전체 흐름이
 끝까지 이어집니다.
@@ -33,6 +33,30 @@ npm install
 cp .env.local.example .env.local   # ANTHROPIC_API_KEY 입력 (선택)
 npm run dev                        # http://localhost:3000
 ```
+
+### PC에서는 휴대폰 화면으로 보입니다
+
+이 서비스는 통화 중에 폰에서 쓰는 것이지만 시연은 대부분 PC에서 이뤄집니다. 그래서 화면 폭이
+**1024px 이상이면 390×844 기기 프레임 안에** 앱을 넣어 보여 줍니다(`components/device-frame.tsx`).
+넓은 모니터에 폰용 레이아웃이 늘어져 무엇을 만든 건지 흐려지는 것을 막기 위해서입니다.
+
+우측 하단 **`전체 화면으로 보기`** 버튼으로 프레임을 끌 수 있고, 선택은 브라우저에 기억됩니다.
+좁은 화면(실제 휴대폰)에서는 프레임 관련 CSS가 전부 적용되지 않으므로 **폰에서는 달라지는 것이 없습니다.**
+신고서를 인쇄할 때도 프레임이 자동으로 걷힙니다.
+
+### 실제 휴대폰에서 열기
+
+실시간 감지를 폰에서 시험하려면 **HTTPS가 필요합니다.** Web Speech API는 `localhost`가 아닌 곳에서는
+보안 컨텍스트(HTTPS)에서만 마이크를 허용하므로, `http://192.168.x.x:3000` 같은 LAN 주소로 접속하면
+화면은 열려도 **음성 인식이 시작되지 않습니다.** 방법은 세 가지입니다.
+
+| 방법 | 명령 | 비고 |
+|---|---|---|
+| **Vercel 배포** | — | 가장 확실합니다. 주소가 고정되고 PWA 홈 화면 설치까지 됩니다 |
+| **임시 터널** | `npm run tunnel` | 설치 불필요. `npm run dev`를 켠 채 다른 터미널에서 실행하면 공개 HTTPS 주소가 발급됩니다 |
+| **로컬 HTTPS** | `npm run dev:https` | LAN 안에서만. 자체 서명 인증서라 폰에서 경고를 한 번 넘겨야 합니다 |
+
+`npm run tunnel`은 3000번 포트를 가정합니다. dev 서버가 다른 포트로 떴다면 명령의 포트를 맞춰 주세요.
 
 ### API 키가 없어도 동작합니다
 
@@ -80,11 +104,13 @@ app/
   support/              AI 상담 채팅
   followup/             사후 지원 리포트
   contacts/             비상연락처 등록
+  reply/[token]/        가족·지인이 여는 회신 페이지 (버튼 두 개)
   api/
     analyze/            위험도 분석 (structured output)
     live-analyze/       실시간 위험도 갱신 (누적 트랜스크립트 + 직전 위험도)
     analyze-image/      문자 캡처 이미지 판독 + 위험도 분석 (Claude vision)
-    verify/             목업 DB 대조 + 상황 요약문 생성
+    verify/             목업 DB 대조 + 상황 요약문 생성 + 회신 대기표 발급
+    contact-reply/      가족 회신 접수(POST) · 도착 확인(GET)
     chat/               상담 스트리밍
     summary/            사후 리포트 (structured output)
     status/             LLM 연동 여부 배지용
@@ -92,6 +118,10 @@ components/
   ui.tsx                Panel · RiskBadge · StatusPill · PrimaryButton 등
   shell.tsx             헤더 · 진행 단계 · 푸터
   live-ui.tsx           실시간 위험도 게이지 · 자막 피드 · 개입 배너
+  device-frame.tsx      데스크톱 전용 휴대폰 프레임 (폰에서는 적용되지 않음)
+  guardian-bot.tsx      개입 화면 — 캐릭터가 말하는 전면 차단 + 단계별 지침
+  bot-character.tsx     도우미 캐릭터 SVG (눈 깜빡임 · 입 움직임 · 걱정 표정)
+  bot-say.tsx           캐릭터가 여러 문장을 순서대로 말하는 블록
 lib/
   types.ts              공통 타입
   anthropic.ts          Claude 클라이언트 + 공통 페르소나/톤 가이드 프롬프트
@@ -100,6 +130,9 @@ lib/
   fallback-analyzer.ts  룰 기반 위험도 분석 (LLM 폴백)
   live-analyzer.ts      룰 기반 실시간 갱신 + 시나리오 단계 추정 + 역질문 사전
   verify-signals.ts     환각 차단 — 원문에 없는 위험 신호 폐기
+  guardian.ts           개입 시 안심 멘트 + 단계별 행동 지침 (규칙 기반)
+  contact-reply.ts      회신 해석 → 도착 멘트 + 교차 검증 결론 판정
+  reply-store.ts        회신 대기함 (서버 메모리, 30분 TTL)
   score-breakdown.ts    위험 점수 기여도 분해 (결정론적 계산)
   speech-out.ts         음성 안내 출력 (Web Speech Synthesis)
   audio-meter.ts        비언어 신호 측정 (말 빠르기·쉼 없음·음량 추세)

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { BASE_PERSONA, FALLBACK_BETAS, MODEL, getClient } from "@/lib/anthropic";
 import { helplines } from "@/lib/mock-db";
+import { describeContactReply, judgeContactReply } from "@/lib/contact-reply";
 import type { CaseState, FollowUpReport } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -54,7 +55,11 @@ function fallbackReport(state: CaseState): FollowUpReport {
         title: "역검증 수행",
         detail:
           state.verification.length > 0
-            ? state.verification.map((s) => s.title).join(" → ") + " 순으로 확인했습니다."
+            ? state.verification.map((s) => s.title).join(" → ") +
+              " 순으로 확인했습니다." +
+              (state.contactReply
+                ? ` ${describeContactReply(state.contactReply.reply, state.contactReply.respondent)}.`
+                : "")
             : "역검증을 수행하지 않았습니다.",
       },
       {
@@ -70,6 +75,9 @@ function fallbackReport(state: CaseState): FollowUpReport {
       `안내받은 계좌: ${state.input?.accountNumber?.trim() || "미입력"}`,
       `AI 판정 위험도: ${a ? `${a.riskLevel} (${a.riskScore}점)` : "미판정"}`,
       ...(a?.detectedSignals.slice(0, 3).map((s) => `확인된 위험 신호: "${s.keyword}" (${s.category})`) ?? []),
+      ...(state.contactReply
+        ? [describeContactReply(state.contactReply.reply, state.contactReply.respondent)]
+        : []),
     ],
     actions: [
       {
@@ -144,6 +152,14 @@ ${
 
 [역검증 결과]
 ${state.verification.map((s) => `${s.title} [${s.status}] ${s.headline}\n  ${s.details.join("\n  ")}`).join("\n") || "수행되지 않음"}
+
+[비상연락처 응답]
+${
+  state.contactReply
+    ? `${describeContactReply(state.contactReply.reply, state.contactReply.respondent)}
+  판정: ${judgeContactReply(state.contactReply.reply, state.analysis?.scamType ?? "판단 보류", state.contactReply.respondent).headline}`
+    : "응답 기록 없음"
+}
 
 [AI 상담 대화 로그]
 ${state.chat.map((m) => `${m.role === "user" ? "사용자" : "AI"}: ${m.content}`).join("\n").slice(0, 4000) || "대화 없음"}`,

@@ -86,6 +86,35 @@ export interface VerifyStepResult {
   details: string[];
 }
 
+/**
+ * 비상연락처에 상황을 공유한 뒤, 수신자가 실제로 어떻게 답했는지.
+ *
+ * 발송한 메일의 회신 버튼을 통해 서비스가 직접 받아 온다. 사용자는 조작하지 않는다 —
+ * 개입이 필요한 순간의 사용자는 화면을 조작할 상태가 아니기 때문이다.
+ * 가족 사칭의 경우 "본인은 무사하다"는 한마디가 다른 어떤 신호보다 결정적인 반증이다.
+ */
+export type ContactReply =
+  /** 본인은 무사하고 그런 부탁을 한 적이 없다고 회신 */
+  | "safe"
+  /** 본인이 연락한 것이 맞다고 회신 */
+  | "aware"
+  /** 기다렸지만 회신이 오지 않음 */
+  | "unreachable";
+
+export interface ContactReplyRecord {
+  reply: ContactReply;
+  /** 답한 사람 이름 (없으면 빈 값) */
+  respondent: string;
+  /** 회신이 도착한 시각 */
+  at: string;
+  /**
+   * real = 가족이 실제로 회신 링크를 눌러 답한 것.
+   * simulated = 메일 발송이 꺼져 있어(RESEND_API_KEY 없음) 데모용으로 만든 응답.
+   * 화면에는 반드시 구분해 표시한다. 오지 않은 답을 왔다고 하면 그것이 가장 위험하다.
+   */
+  source: "real" | "simulated";
+}
+
 export interface EmergencyContact {
   id: string;
   name: string;
@@ -122,6 +151,8 @@ export interface CaseState {
   input: SituationInput | null;
   analysis: RiskAnalysis | null;
   verification: VerifyStepResult[];
+  /** 3차 검증에서 비상연락처가 실제로 어떻게 답했는지 (구버전 세션에는 없을 수 있다) */
+  contactReply?: ContactReplyRecord | null;
   chat: ChatMessage[];
   report: FollowUpReport | null;
 }

@@ -142,7 +142,7 @@ export default function CheckPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-10">
+    <div className="mx-auto max-w-3xl px-4 py-5 @md:px-5 @md:py-10">
       <FlowSteps />
       <SectionTitle
         eyebrow="STEP 01 · 감지"
@@ -150,7 +150,7 @@ export default function CheckPage() {
         desc="통화 내용을 기억나는 대로 적거나, 받은 문자를 그대로 붙여넣으시면 됩니다. 문장이 정리되지 않아도 괜찮습니다."
       />
 
-      <Panel className="mb-5 flex flex-col gap-3 border-danger/25 bg-danger/[0.06] p-4 sm:flex-row sm:items-center sm:justify-between">
+      <Panel className="mb-5 flex flex-col gap-3 border-danger/25 bg-danger/[0.06] p-4 @md:flex-row @md:items-center @md:justify-between">
         <p className="text-[13px] leading-relaxed text-mist">
           <strong className="font-bold text-white">지금 통화 중이신가요?</strong> 스피커폰으로 바꾸면 AI가
           실시간으로 들으면서 위험 신호가 나오는 순간 알려드립니다.
@@ -256,7 +256,7 @@ export default function CheckPage() {
         />
         <p className="mt-2 text-right font-mono text-[11px] text-fog">{content.length}자</p>
 
-        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+        <div className="mt-5 grid gap-4 @md:grid-cols-3">
           <Field
             id="caller"
             label="발신번호"
@@ -286,8 +286,8 @@ export default function CheckPage() {
           </p>
         )}
 
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <PrimaryButton onClick={submit} disabled={loading} className="sm:min-w-52">
+        <div className="mt-6 flex flex-col gap-3 @md:flex-row @md:items-center">
+          <PrimaryButton onClick={submit} disabled={loading} className="@md:min-w-52">
             {loading ? (
               <>
                 <Spinner /> AI가 확인하는 중…

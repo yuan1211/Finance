@@ -4,6 +4,7 @@ import { useMemo, useSyncExternalStore } from "react";
 import type {
   CaseState,
   ChatMessage,
+  ContactReplyRecord,
   EmergencyContact,
   FollowUpReport,
   RiskAnalysis,
@@ -29,6 +30,7 @@ export function emptyCase(): CaseState {
     input: null,
     analysis: null,
     verification: [],
+    contactReply: null,
     chat: [],
     report: null,
   };
@@ -144,6 +146,10 @@ const actions = {
   },
   setVerification(verification: VerifyStepResult[]) {
     writeCase({ ...snapshot.caseState, verification });
+  },
+  /** 3차 검증에서 비상연락처가 실제로 답한 내용. null이면 기록을 지운다. */
+  setContactReply(contactReply: ContactReplyRecord | null) {
+    writeCase({ ...snapshot.caseState, contactReply });
   },
   setChat(chat: ChatMessage[]) {
     writeCase({ ...snapshot.caseState, chat });

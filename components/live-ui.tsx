@@ -167,7 +167,7 @@ export function StageTracker({
     <div>
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <p className="text-[11px] font-bold tracking-[0.18em] text-fog uppercase">사기 시나리오 단계</p>
-        <p className="text-[11px] text-fog">
+        <p className="hidden text-[11px] text-fog @md:block">
           보이스피싱은 정해진 대본을 따릅니다. 지금 어디까지 왔는지 표시합니다.
         </p>
       </div>
@@ -180,7 +180,7 @@ export function StageTracker({
             <li key={s} className="flex shrink-0 items-center gap-1">
               <div
                 aria-current={state === "active" ? "step" : undefined}
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ring-1 transition ${
+                className={`flex items-center gap-1.5 rounded-full px-2 py-1.5 text-xs font-bold ring-1 transition @md:px-3 ${
                   state === "active"
                     ? `${t.bg} ${t.text} ${t.ring}`
                     : state === "done"
@@ -195,7 +195,7 @@ export function StageTracker({
                   aria-hidden
                 />
                 <span className="font-mono text-[10px] opacity-60">{`0${i + 1}`}</span>
-                {s}
+                <span className={state === "active" ? "" : "hidden @md:inline"}>{s}</span>
               </div>
               {i < VISIBLE_STAGES.length - 1 && <span className="h-px w-3 shrink-0 bg-line" aria-hidden />}
             </li>
@@ -203,7 +203,7 @@ export function StageTracker({
         })}
       </ol>
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+      <div className="mt-3 grid gap-2 @md:grid-cols-2">
         <div className={`rounded-xl px-3.5 py-3 ring-1 ${tone.bg} ${tone.ring}`}>
           <p className={`text-[11px] font-bold tracking-wider uppercase ${tone.text}`}>현재 · {stage}</p>
           <p className="mt-1 text-[13px] leading-relaxed text-mist">{STAGE_DESC[stage]}</p>
@@ -256,7 +256,7 @@ export function CounterScriptCard({
             >
               {i + 1}
             </span>
-            <p className="flex-1 text-[15px] leading-relaxed font-semibold text-white sm:text-base">
+            <p className="flex-1 text-[15px] leading-relaxed font-semibold text-white @md:text-base">
               &ldquo;{q}&rdquo;
             </p>
             {onSpeak && (
@@ -512,11 +512,11 @@ export function InterventionBanner({
   return (
     <div
       role="alert"
-      className={`pb-fade sticky top-16 z-30 mb-4 rounded-2xl border p-4 backdrop-blur-md sm:p-5 ${
+      className={`pb-fade sticky top-16 z-30 mb-4 rounded-2xl border p-4 backdrop-blur-md @md:p-5 ${
         high ? "border-danger/50 bg-danger/12" : "border-warn/45 bg-warn/10"
       }`}
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 @md:flex-row @md:items-center @md:justify-between">
         <div className="flex items-start gap-3">
           <span
             className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-black ${
@@ -558,12 +558,17 @@ export function InterventionBanner({
 
 export function LivePrivacyNotice({ className = "" }: { className?: string }) {
   return (
-    <p className={`rounded-xl border border-line/70 bg-ink-2/50 px-4 py-3 text-xs leading-relaxed text-fog ${className}`}>
-      <span className="font-semibold text-mist">음성 처리 안내</span> · 실시간 인식은 Chrome 내장 Web Speech
-      API를 사용하며, 이 방식은 마이크 음성이 브라우저 제조사의 음성 인식 서버로 전송됩니다. 변환된 텍스트는
-      위험도 분석 목적으로만 전송되고 서버에 저장되지 않습니다. 통화 상대의 개인정보가 포함될 수 있어
-      <span className="font-semibold text-mist"> 종료 시 기본값은 &ldquo;원문 삭제&rdquo;</span>이며, 남길지
-      여부는 종료 화면에서 직접 고르실 수 있습니다.
-    </p>
+    <details className={`rounded-xl border border-line/70 bg-ink-2/50 px-4 py-3 ${className}`}>
+      <summary className="cursor-pointer list-none text-xs font-semibold text-fog transition hover:text-brand">
+        음성 처리 안내 · 원문은 기본으로 삭제됩니다
+      </summary>
+      <p className="mt-2 text-xs leading-relaxed text-fog">
+        실시간 인식은 Chrome 내장 Web Speech API를 사용하며, 이 방식은 마이크 음성이 브라우저 제조사의 음성
+        인식 서버로 전송됩니다. 변환된 텍스트는 위험도 분석 목적으로만 전송되고 서버에 저장되지 않습니다.
+        통화 상대의 개인정보가 포함될 수 있어
+        <span className="font-semibold text-mist"> 종료 시 기본값은 &ldquo;원문 삭제&rdquo;</span>이며, 남길지
+        여부는 종료 화면에서 직접 고르실 수 있습니다.
+      </p>
+    </details>
   );
 }

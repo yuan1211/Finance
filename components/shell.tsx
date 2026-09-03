@@ -29,18 +29,18 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-line/70 bg-ink/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-5">
-        <Link href="/" className="flex items-center gap-2.5">
+        <Link href="/" className="flex min-w-0 items-center gap-2.5">
           <span className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-brand-deep text-sm font-black text-white">
             PB
           </span>
-          <span className="text-[15px] font-bold tracking-tight text-white">
+          <span className="text-[15px] font-bold tracking-tight whitespace-nowrap text-white">
             피싱브레이크
-            <span className="ml-2 hidden text-[11px] font-medium text-fog sm:inline">Pishing Break</span>
+            <span className="ml-2 hidden text-[11px] font-medium text-fog @md:inline">Pishing Break</span>
           </span>
         </Link>
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 @md:gap-3">
           <span
-            className={`hidden rounded-md px-2 py-1 text-[11px] font-semibold ring-1 sm:inline ${
+            className={`hidden rounded-md px-2 py-1 text-[11px] font-semibold ring-1 @md:inline ${
               llm === null
                 ? "bg-line/40 text-fog ring-line"
                 : llm
@@ -67,7 +67,7 @@ export function Header() {
           </button>
           <Link
             href="/contacts"
-            className={`hidden rounded-lg px-3 py-1.5 text-xs font-semibold transition sm:block ${
+            className={`hidden rounded-lg px-3 py-1.5 text-xs font-semibold transition @md:block ${
               pathname === "/contacts"
                 ? "bg-brand/15 text-brand"
                 : "text-fog hover:bg-line/40 hover:text-white"
@@ -77,7 +77,7 @@ export function Header() {
           </Link>
           <Link
             href="/check"
-            className={`hidden rounded-lg px-3 py-1.5 text-xs font-semibold transition sm:block ${
+            className={`hidden rounded-lg px-3 py-1.5 text-xs font-semibold transition @md:block ${
               pathname === "/check" ? "bg-brand/15 text-brand" : "text-fog hover:bg-line/40 hover:text-white"
             }`}
           >
@@ -102,8 +102,15 @@ export function FlowSteps() {
   if (current < 0) return null;
 
   return (
-    <nav aria-label="진행 단계" className="mb-8">
-      <ol className="flex items-center gap-1.5 overflow-x-auto pb-1">
+    <nav aria-label="진행 단계" className="mb-4 @md:mb-8">
+      {/* 모바일: 칩 다섯 개를 늘어놓을 폭이 없다. 지금 어디인지만 알려 준다. */}
+      <p className="text-[11px] font-semibold text-brand @md:hidden">
+        <span className="font-mono opacity-70">{FLOW[current].step}</span> {FLOW[current].label}
+        <span className="ml-1.5 font-normal text-fog">
+          · {current + 1}/{FLOW.length}
+        </span>
+      </p>
+      <ol className="hidden items-center gap-1.5 overflow-x-auto pb-1 @md:flex">
         {FLOW.map((f, i) => {
           const state = i < current ? "done" : i === current ? "active" : "todo";
           return (

@@ -48,7 +48,7 @@ export default function ContactsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-10">
+    <div className="mx-auto max-w-3xl px-4 py-5 @md:px-5 @md:py-10">
       <SectionTitle
         eyebrow="사전 설정"
         title="비상연락처 등록"
@@ -56,7 +56,7 @@ export default function ContactsPage() {
       />
 
       <Panel className="mb-6 p-6">
-        <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_0.8fr_1.1fr_1.3fr_auto] lg:items-end">
+        <form onSubmit={submit} className="grid gap-4 @md:grid-cols-2 @5xl:grid-cols-[1fr_0.8fr_1.1fr_1.3fr_auto] @5xl:items-end">
           <div>
             <label htmlFor="name" className="mb-1.5 block text-xs font-semibold text-fog">
               이름
@@ -185,7 +185,7 @@ export default function ContactsPage() {
         )}
       </Panel>
 
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+      <div className="mt-6 flex flex-col gap-3 @md:flex-row">
         <PrimaryButton href="/check">상황 입력하러 가기</PrimaryButton>
         <PrimaryButton href="/" tone="ghost">
           홈으로

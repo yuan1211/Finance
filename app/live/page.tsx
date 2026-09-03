@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useCase } from "@/lib/case-store";
+import { buildCalmScript, buildGuardianSteps } from "@/lib/guardian";
 import { DEMO_SCRIPTS, parseScriptText, type DemoScript, type ScriptLine } from "@/lib/demo-scripts";
 import { createRecognizer, isSpeechSupported, speechFatalMessage, type Recognizer } from "@/lib/speech";
 import { cancelSpeech, isTtsSupported, speak, warmUpVoices } from "@/lib/speech-out";
@@ -25,6 +26,7 @@ import {
   VoiceToggle,
   formatClock,
 } from "@/components/live-ui";
+import { GuardianBot } from "@/components/guardian-bot";
 import { EngineBadge, Panel, PrimaryButton, ScoreBreakdownCard, SectionTitle } from "@/components/ui";
 import { FlowSteps } from "@/components/shell";
 import type {
@@ -82,7 +84,7 @@ const INITIAL_RISK: RiskState = {
 
 export default function LivePage() {
   const router = useRouter();
-  const { setInput, setAnalysis } = useCase();
+  const { setInput, setAnalysis, contacts } = useCase();
 
   // 브라우저 지원 여부는 렌더 밖 환경값이다. 서버 렌더에서는 null(확인 중)로 둔다.
   const supported = useSyncExternalStore(subscribeNever, isSpeechSupported, getServerSupported);
@@ -100,6 +102,8 @@ export default function LivePage() {
   const [signals, setSignals] = useState<DetectedSignal[]>([]);
   const [history, setHistory] = useState<{ at: number; riskScore: number }[]>([]);
   const [bannerOpen, setBannerOpen] = useState(false);
+  /** 위험도 '높음'에서 화면을 덮는 도우미봇 */
+  const [guardOpen, setGuardOpen] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [demoLabel, setDemoLabel] = useState<string | null>(null);
   const [demoDone, setDemoDone] = useState(false);
@@ -172,6 +176,22 @@ export default function LivePage() {
     });
   }, []);
 
+  /** 사용자가 직접 누른 읽기 요청. 음성 안내 토글과 무관하게 읽어 준다. */
+  const speakNow = useCallback((text: string) => {
+    if (!text.trim()) return;
+    lastSpokenRef.current = text;
+    speak(text, {
+      onStart: () => {
+        speakingRef.current = true;
+      },
+      onEnd: () => {
+        setTimeout(() => {
+          speakingRef.current = false;
+        }, 600);
+      },
+    });
+  }, []);
+
   useEffect(() => {
     if (phase !== "running") return;
     const id = setInterval(() => setElapsed(Date.now() - startedAtRef.current), 500);
@@ -226,7 +246,13 @@ export default function LivePage() {
 
     // 사용자가 "계속 듣기"로 닫았다면, 위험도가 더 올라갈 때만 다시 띄운다
     if (update.shouldIntervene && update.riskScore > dismissedScoreRef.current) {
-      setBannerOpen(true);
+      // '높음'에서는 배너로 부족하다. 화면을 덮고 다음 행동을 멈춰 세운다.
+      if (update.riskLevel === "높음") {
+        setBannerOpen(false);
+        setGuardOpen(true);
+      } else {
+        setBannerOpen(true);
+      }
     }
 
     // 개입이 필요한 순간에만 소리를 낸다. 매번 읽으면 통화를 방해한다.
@@ -483,12 +509,54 @@ export default function LivePage() {
     [buildRedacted, callerNumber, elapsed, risk, router, segments.length, setAnalysis, setInput, signals],
   );
 
+  /* ---------------- 도우미봇 ---------------- */
+
+  const calmLines = useMemo(
+    () => buildCalmScript(risk.level, risk.scamStage),
+    [risk.level, risk.scamStage],
+  );
+
+  const guardSteps = useMemo(
+    () =>
+      buildGuardianSteps({
+        // 기관 대표번호 대조는 통화 원문에서 바로 찾는다 (역검증 화면으로 넘어가지 않아도 되도록)
+        transcript: segments.map((s) => s.text).join(" "),
+        scamType: risk.scamType,
+        signals,
+        counterQuestions: risk.counterQuestions,
+        contacts,
+        callerNumber,
+      }),
+    [segments, risk.scamType, risk.counterQuestions, signals, contacts, callerNumber],
+  );
+
   /* ---------------- 렌더 ---------------- */
 
   const running = phase === "running";
 
   return (
-    <div className="mx-auto max-w-5xl px-5 py-10">
+    <div className="mx-auto max-w-5xl px-4 py-5 @md:px-5 @md:py-10">
+      <GuardianBot
+        open={guardOpen}
+        level={risk.level}
+        score={risk.score}
+        liveMessage={risk.liveMessage}
+        calmLines={calmLines}
+        steps={guardSteps}
+        onSpeak={speakNow}
+        onVerify={() => {
+          clearTimers();
+          setListening(false);
+          setGuardOpen(false);
+          // 역검증에는 통화 내용이 필요하므로 원문을 함께 넘긴다 (브라우저 세션 저장소에만 보관)
+          commitAndGo("/verify", true);
+        }}
+        onDismiss={() => {
+          dismissedScoreRef.current = risk.score;
+          setGuardOpen(false);
+        }}
+      />
+
       <FlowSteps />
       <SectionTitle
         eyebrow="STEP 01 · 감지 (실시간)"
@@ -546,9 +614,9 @@ export default function LivePage() {
       )}
 
       {phase !== "idle" && (
-        <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+        <div className="grid gap-4 @5xl:grid-cols-[1fr_320px]">
           {/* 실시간 자막 — 모바일에서는 위험도 아래로 내린다 */}
-          <Panel className="order-2 flex max-h-[70vh] min-h-[280px] flex-col overflow-hidden lg:order-1 lg:max-h-[560px] lg:min-h-[340px]">
+          <Panel className="order-2 flex max-h-60 min-h-[9.5rem] flex-col overflow-hidden @md:max-h-[26rem] @md:min-h-[17rem] @5xl:order-1 @5xl:max-h-[35rem] @5xl:min-h-[21rem]">
             <div className="flex items-center justify-between gap-3 border-b border-line/70 px-5 py-3">
               <div className="flex items-center gap-2.5">
                 <span
@@ -600,7 +668,7 @@ export default function LivePage() {
                 <PrimaryButton
                   tone="danger"
                   onClick={() => void stopSession()}
-                  className="min-h-11 flex-1 px-4 py-2.5 text-sm sm:flex-none sm:text-xs"
+                  className="min-h-11 flex-1 px-4 py-2.5 text-sm @md:flex-none @md:text-xs"
                 >
                   통화 감지 종료
                 </PrimaryButton>
@@ -619,7 +687,7 @@ export default function LivePage() {
           </Panel>
 
           {/* 위험도 — 가장 먼저 눈에 들어와야 하는 정보 */}
-          <div className="order-1 space-y-4 lg:order-2">
+          <div className="order-1 space-y-4 @5xl:order-2">
             <Panel className="p-5">
               <RiskGauge
                 score={risk.score}
@@ -632,45 +700,65 @@ export default function LivePage() {
                 <span className="text-[11px] font-semibold text-fog">의심 유형 · {risk.scamType}</span>
                 {history.length > 0 && <EngineBadge engine={risk.engine} />}
               </div>
-              <p className="mt-3 text-[13px] leading-relaxed text-mist">{risk.reason}</p>
+              <p className="mt-3 hidden text-[13px] leading-relaxed text-mist @md:block">{risk.reason}</p>
             </Panel>
 
-            {source === "mic" && (
-              <Panel className="p-5">
-                <NonverbalPanel signals={nonverbal} />
+            {/*
+              비언어 지표와 점수 분해는 "왜 그렇게 판단했나"에 대한 근거다.
+              통화 중에 읽을 것이 아니므로 접어 둔다. 끝난 뒤에는 얼마든지 펼쳐 볼 수 있다.
+            */}
+            {(source === "mic" || risk.scoreBreakdown) && (
+              <Panel className="px-5 py-3.5">
+                <details>
+                  <summary className="cursor-pointer list-none text-[12px] font-semibold text-fog transition hover:text-brand">
+                    판단 근거 보기
+                  </summary>
+                  <div className="mt-3 space-y-4">
+                    {source === "mic" && <NonverbalPanel signals={nonverbal} />}
+                    {risk.scoreBreakdown && (
+                      <ScoreBreakdownCard
+                        breakdown={risk.scoreBreakdown}
+                        finalScore={risk.score}
+                        engine={risk.engine}
+                      />
+                    )}
+                  </div>
+                </details>
               </Panel>
             )}
 
-            {risk.scoreBreakdown && (
-              <Panel className="p-5">
-                <ScoreBreakdownCard
-                  breakdown={risk.scoreBreakdown}
-                  finalScore={risk.score}
-                  engine={risk.engine}
-                />
-              </Panel>
-            )}
-
-            <Panel className="p-5">
-              <p className="mb-3 text-[11px] font-bold tracking-[0.18em] text-fog uppercase">
-                감지된 위험 신호 {signals.length > 0 && `· ${signals.length}건`}
-              </p>
-              {signals.length === 0 ? (
-                <p className="text-[13px] leading-relaxed text-fog">
-                  아직 확인된 위험 신호가 없습니다. 계속 듣고 있겠습니다.
+            {/* 어떤 말이 걸렸는지는 한눈에 보여야 하지만, 분류와 설명까지는 통화 중에 필요 없다 */}
+            {signals.length > 0 && (
+              <Panel className="px-5 py-4">
+                <p className="mb-2.5 text-[11px] font-bold tracking-[0.18em] text-fog uppercase">
+                  걸린 말 · {signals.length}
                 </p>
-              ) : (
-                <ul className="space-y-2.5">
+                <div className="flex flex-wrap gap-1.5">
                   {signals.map((s, i) => (
-                    <li key={`${s.keyword}-${i}`} className="pb-fade rounded-xl bg-ink/60 p-3 ring-1 ring-line">
-                      <p className="text-[13px] font-bold text-danger">&ldquo;{s.keyword}&rdquo;</p>
-                      <p className="mt-0.5 text-[11px] font-semibold text-fog">{s.category}</p>
-                      <p className="mt-1 text-[12px] leading-relaxed text-mist">{s.explanation}</p>
-                    </li>
+                    <span
+                      key={`${s.keyword}-${i}`}
+                      className="pb-fade rounded-lg bg-danger/12 px-2.5 py-1 text-[12px] font-bold text-danger ring-1 ring-danger/25"
+                      title={`${s.category} — ${s.explanation}`}
+                    >
+                      {s.keyword}
+                    </span>
                   ))}
-                </ul>
-              )}
-            </Panel>
+                </div>
+                <details className="mt-3">
+                  <summary className="cursor-pointer list-none text-[12px] font-semibold text-fog transition hover:text-brand">
+                    각 신호가 왜 위험한지
+                  </summary>
+                  <ul className="mt-2 space-y-2">
+                    {signals.map((s, i) => (
+                      <li key={`d-${s.keyword}-${i}`} className="rounded-xl bg-ink/60 p-3 ring-1 ring-line">
+                        <p className="text-[12px] font-bold text-danger">&ldquo;{s.keyword}&rdquo;</p>
+                        <p className="mt-1 text-[12px] leading-relaxed text-mist">{s.explanation}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </Panel>
+            )}
           </div>
         </div>
       )}
@@ -678,11 +766,10 @@ export default function LivePage() {
       {phase === "ended" && (
         <Panel className="mt-4 p-6">
           <h2 className="text-lg font-bold text-white">이제 어떻게 할까요?</h2>
-          <p className="mt-2 text-sm leading-relaxed text-mist">
-            {formatClock(elapsed)} 동안 {segments.length}건의 발화를 인식했고, 최종 위험도는 {risk.level}(
-            {risk.score}점), 사기 시나리오는 <strong className="font-bold text-white">{risk.scamStage}</strong>{" "}
-            단계까지 진행됐습니다. 다음 단계로 넘어가기 전에 통화 원문을 남길지 정해 주세요.
+          <p className="mt-1.5 text-[13px] leading-relaxed text-mist">
+            위험도 {risk.level} {risk.score}점 · {risk.scamStage} 단계 · {formatClock(elapsed)}
           </p>
+          <p className="mt-2.5 text-[13px] text-fog">통화 원문을 남길까요?</p>
 
           <fieldset className="mt-5 space-y-2">
             <legend className="sr-only">통화 원문 저장 여부</legend>
@@ -701,7 +788,7 @@ export default function LivePage() {
             />
           </fieldset>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-6 flex flex-col gap-3 @md:flex-row">
             <PrimaryButton
               tone={risk.level === "낮음" ? "brand" : "danger"}
               onClick={() => commitAndGo("/verify", keepTranscript)}
@@ -787,8 +874,8 @@ function IdlePanel({
           <div>
             <h2 className="text-lg font-bold text-white">실시간 감지</h2>
             <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-mist">
-              통화를 <strong className="font-semibold text-white">스피커폰</strong>으로 바꾼 뒤 휴대폰을 이
-              기기 가까이 두세요. 마이크로 들리는 말을 받아 적으면서 위험도를 계속 갱신합니다.
+              통화를 <strong className="font-semibold text-white">스피커폰</strong>으로 바꿔 주세요.
+              들리는 말을 받아 적으면서 위험 신호를 찾습니다.
             </p>
           </div>
           <span
@@ -817,12 +904,12 @@ function IdlePanel({
           />
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="mt-5 flex flex-col gap-3 @md:flex-row @md:items-center">
           <PrimaryButton
             tone="danger"
             onClick={onStartMic}
             disabled={supported === false}
-            className="min-h-12 w-full text-base sm:w-auto sm:min-w-48 sm:text-sm"
+            className="min-h-12 w-full text-base @md:w-auto @md:min-w-48 @md:text-sm"
           >
             통화 감지 시작
           </PrimaryButton>
@@ -852,13 +939,13 @@ function IdlePanel({
           {DEMO_SCRIPTS.map((s) => (
             <li
               key={s.id}
-              className="flex flex-col gap-3 rounded-xl border border-line bg-ink/50 p-4 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-xl border border-line bg-ink/50 p-4 @md:flex-row @md:items-center @md:justify-between"
             >
-              <div>
-                <p className="flex items-center gap-2 text-sm font-bold text-white">
+              <div className="min-w-0">
+                <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-bold text-white">
                   {s.label}
                   <span
-                    className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ring-1 ${
+                    className={`shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold whitespace-nowrap ring-1 ${
                       s.expected === "높음"
                         ? "bg-danger/12 text-danger ring-danger/25"
                         : s.expected === "중간"

@@ -66,7 +66,7 @@ export default function VerifyPage() {
   const done = !running;
 
   useEffect(() => {
-    if (hydrated && !input) router.replace("/check");
+    if (hydrated && !input) router.replace("/live");
   }, [hydrated, input, router]);
 
   const run = useCallback(async () => {
@@ -141,7 +141,7 @@ export default function VerifyPage() {
         desc="확인이 끝날 때까지 송금하지 마세요."
       />
 
-      <ol className="space-y-4">
+      <ol className="space-y-2.5">
         {SKELETON.map((sk, i) => {
           const result = verification.find((s) => s.id === sk.id);
           const revealed = i < visible && Boolean(result);
@@ -158,7 +158,7 @@ export default function VerifyPage() {
           return (
             <li key={sk.id}>
               <Panel
-                className={`p-5 transition ${
+                className={`p-4 transition @md:p-5 ${
                   revealed ? "pb-fade" : active ? "border-brand/40" : "opacity-55"
                 }`}
               >
@@ -244,7 +244,7 @@ export default function VerifyPage() {
         </p>
       )}
 
-      <div className="mt-7 flex flex-col gap-3 @md:flex-row">
+      <div className="mt-5 flex flex-col gap-2.5 @md:flex-row">
         <PrimaryButton href="/support" disabled={!done}>
           {done ? "AI 상담 이어가기" : "확인이 끝나면 이어집니다…"}
         </PrimaryButton>
@@ -253,7 +253,7 @@ export default function VerifyPage() {
         </PrimaryButton>
       </div>
 
-      <MvpNotice className="mt-6" />
+      <MvpNotice className="mt-4" />
     </div>
   );
 }

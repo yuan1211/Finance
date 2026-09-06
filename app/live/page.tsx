@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useCase } from "@/lib/case-store";
@@ -13,21 +12,18 @@ import {
   hasPressurePattern,
   startAudioMeter,
   type AudioMeter,
-  type NonverbalSignals,
 } from "@/lib/audio-meter";
 import {
   CounterScriptCard,
   InterventionBanner,
   LivePrivacyNotice,
-  NonverbalPanel,
   RiskGauge,
-  StageTracker,
   TranscriptFeed,
   VoiceToggle,
   formatClock,
 } from "@/components/live-ui";
 import { GuardianBot } from "@/components/guardian-bot";
-import { EngineBadge, Panel, PrimaryButton, ScoreBreakdownCard, SectionTitle } from "@/components/ui";
+import { Panel, PrimaryButton } from "@/components/ui";
 import { FlowSteps } from "@/components/shell";
 import type {
   DetectedSignal,
@@ -109,7 +105,6 @@ export default function LivePage() {
   const [demoDone, setDemoDone] = useState(false);
   const [keepTranscript, setKeepTranscript] = useState(false);
   const [voiceOn, setVoiceOn] = useState(false);
-  const [nonverbal, setNonverbal] = useState<NonverbalSignals | null>(null);
 
   // 렌더와 무관하게 최신값을 읽어야 하는 것들 (디바운스 타이머·인식 콜백에서 사용)
   const startedAtRef = useRef(0);
@@ -275,9 +270,9 @@ export default function LivePage() {
       setAnalyzing(true);
 
       // 비언어 지표는 매 분석 직전에 다시 읽는다 (표본이 계속 쌓이므로)
+      // 화면에는 띄우지 않고, 압박 패턴이 보일 때만 프롬프트 보조 근거로 넘긴다
       const measured =
         meterRef.current?.read(spokenCharsRef.current, Date.now() - startedAtRef.current) ?? null;
-      if (measured) setNonverbal(measured);
 
       try {
         const res = await fetch("/api/live-analyze", {
@@ -348,7 +343,6 @@ export default function LivePage() {
       setSource(src);
       lastSpokenRef.current = "";
       spokenCharsRef.current = 0;
-      setNonverbal(null);
       // 데모 모드는 마이크를 쓰지 않아 되먹임 위험이 없으므로 음성 안내를 기본으로 켠다
       setVoiceOn(isTtsSupported() && src === "demo");
       setPhase("running");
@@ -535,7 +529,7 @@ export default function LivePage() {
   const running = phase === "running";
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-5 @md:px-5 @md:py-10">
+    <div className="mx-auto max-w-5xl px-4 py-4 @md:px-5 @md:py-10">
       <GuardianBot
         open={guardOpen}
         level={risk.level}
@@ -558,11 +552,6 @@ export default function LivePage() {
       />
 
       <FlowSteps />
-      <SectionTitle
-        eyebrow="STEP 01 · 감지 (실시간)"
-        title="통화를 들으면서 함께 판단하겠습니다"
-        desc="의심되는 전화를 스피커폰으로 바꾸고 아래 버튼을 누르세요. 들리는 말을 실시간으로 받아 적으면서 위험 신호가 나타나는 순간 알려드립니다."
-      />
 
       {bannerOpen && running && (
         <InterventionBanner
@@ -598,14 +587,8 @@ export default function LivePage() {
         />
       )}
 
-      {phase !== "idle" && (
-        <Panel className="mb-4 p-5">
-          <StageTracker stage={risk.scamStage} predictedNextMove={risk.predictedNextMove} />
-        </Panel>
-      )}
-
       {phase !== "idle" && risk.counterQuestions.length > 0 && (
-        <Panel className="mb-4 border-brand/30 p-5">
+        <Panel className="mb-3 border-brand/30 p-4 @md:p-5">
           <CounterScriptCard
             questions={risk.counterQuestions}
             onSpeak={voiceOn ? (t) => announce(t) : undefined}
@@ -614,9 +597,9 @@ export default function LivePage() {
       )}
 
       {phase !== "idle" && (
-        <div className="grid gap-4 @5xl:grid-cols-[1fr_320px]">
+        <div className="grid gap-3 @5xl:grid-cols-[1fr_320px]">
           {/* 실시간 자막 — 모바일에서는 위험도 아래로 내린다 */}
-          <Panel className="order-2 flex max-h-60 min-h-[9.5rem] flex-col overflow-hidden @md:max-h-[26rem] @md:min-h-[17rem] @5xl:order-1 @5xl:max-h-[35rem] @5xl:min-h-[21rem]">
+          <Panel className="order-2 flex max-h-52 min-h-[8.5rem] flex-col overflow-hidden @md:max-h-[26rem] @md:min-h-[17rem] @5xl:order-1 @5xl:max-h-[35rem] @5xl:min-h-[21rem]">
             <div className="flex items-center justify-between gap-3 border-b border-line/70 px-5 py-3">
               <div className="flex items-center gap-2.5">
                 <span
@@ -687,8 +670,8 @@ export default function LivePage() {
           </Panel>
 
           {/* 위험도 — 가장 먼저 눈에 들어와야 하는 정보 */}
-          <div className="order-1 space-y-4 @5xl:order-2">
-            <Panel className="p-5">
+          <div className="order-1 space-y-3 @5xl:order-2">
+            <Panel className="p-4 @md:p-5">
               <RiskGauge
                 score={risk.score}
                 level={risk.level}
@@ -696,36 +679,10 @@ export default function LivePage() {
                 history={history}
                 analyzing={analyzing}
               />
-              <div className="mt-4 flex items-center justify-between gap-2 border-t border-line/60 pt-3">
-                <span className="text-[11px] font-semibold text-fog">의심 유형 · {risk.scamType}</span>
-                {history.length > 0 && <EngineBadge engine={risk.engine} />}
-              </div>
-              <p className="mt-3 hidden text-[13px] leading-relaxed text-mist @md:block">{risk.reason}</p>
+              <p className="mt-4 border-t border-line/60 pt-3 text-[11px] font-semibold text-fog">
+                의심 유형 · {risk.scamType}
+              </p>
             </Panel>
-
-            {/*
-              비언어 지표와 점수 분해는 "왜 그렇게 판단했나"에 대한 근거다.
-              통화 중에 읽을 것이 아니므로 접어 둔다. 끝난 뒤에는 얼마든지 펼쳐 볼 수 있다.
-            */}
-            {(source === "mic" || risk.scoreBreakdown) && (
-              <Panel className="px-5 py-3.5">
-                <details>
-                  <summary className="cursor-pointer list-none text-[12px] font-semibold text-fog transition hover:text-brand">
-                    판단 근거 보기
-                  </summary>
-                  <div className="mt-3 space-y-4">
-                    {source === "mic" && <NonverbalPanel signals={nonverbal} />}
-                    {risk.scoreBreakdown && (
-                      <ScoreBreakdownCard
-                        breakdown={risk.scoreBreakdown}
-                        finalScore={risk.score}
-                        engine={risk.engine}
-                      />
-                    )}
-                  </div>
-                </details>
-              </Panel>
-            )}
 
             {/* 어떤 말이 걸렸는지는 한눈에 보여야 하지만, 분류와 설명까지는 통화 중에 필요 없다 */}
             {signals.length > 0 && (
@@ -744,19 +701,6 @@ export default function LivePage() {
                     </span>
                   ))}
                 </div>
-                <details className="mt-3">
-                  <summary className="cursor-pointer list-none text-[12px] font-semibold text-fog transition hover:text-brand">
-                    각 신호가 왜 위험한지
-                  </summary>
-                  <ul className="mt-2 space-y-2">
-                    {signals.map((s, i) => (
-                      <li key={`d-${s.keyword}-${i}`} className="rounded-xl bg-ink/60 p-3 ring-1 ring-line">
-                        <p className="text-[12px] font-bold text-danger">&ldquo;{s.keyword}&rdquo;</p>
-                        <p className="mt-1 text-[12px] leading-relaxed text-mist">{s.explanation}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </details>
               </Panel>
             )}
           </div>
@@ -764,7 +708,7 @@ export default function LivePage() {
       )}
 
       {phase === "ended" && (
-        <Panel className="mt-4 p-6">
+        <Panel className="mt-4 p-4 @md:p-6">
           <h2 className="text-lg font-bold text-white">이제 어떻게 할까요?</h2>
           <p className="mt-1.5 text-[13px] leading-relaxed text-mist">
             위험도 {risk.level} {risk.score}점 · {risk.scamStage} 단계 · {formatClock(elapsed)}
@@ -868,14 +812,13 @@ function IdlePanel({
   const fileRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="space-y-4">
-      <Panel className="p-6">
+    <div className="space-y-2.5">
+      <Panel className="p-3 @md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h2 className="text-lg font-bold text-white">실시간 감지</h2>
+            <h2 className="text-[15px] font-bold text-white">실시간 감지</h2>
             <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-mist">
               통화를 <strong className="font-semibold text-white">스피커폰</strong>으로 바꿔 주세요.
-              들리는 말을 받아 적으면서 위험 신호를 찾습니다.
             </p>
           </div>
           <span
@@ -891,9 +834,9 @@ function IdlePanel({
           </span>
         </div>
 
-        <div className="mt-5 max-w-xs">
+        <div className="mt-3.5 max-w-xs">
           <label htmlFor="live-caller" className="mb-1.5 block text-xs font-semibold text-fog">
-            발신번호 <span className="font-normal opacity-70">(선택 — 신고 이력 대조에 사용)</span>
+            발신번호 <span className="font-normal opacity-70">(선택)</span>
           </label>
           <input
             id="live-caller"
@@ -904,7 +847,7 @@ function IdlePanel({
           />
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 @md:flex-row @md:items-center">
+        <div className="mt-3.5 flex flex-col gap-2.5 @md:flex-row @md:items-center">
           <PrimaryButton
             tone="danger"
             onClick={onStartMic}
@@ -913,68 +856,46 @@ function IdlePanel({
           >
             통화 감지 시작
           </PrimaryButton>
-          <p className="text-xs leading-relaxed text-fog">
-            {supported === false
-              ? "이 브라우저는 실시간 음성 인식을 지원하지 않습니다. 아래 데모 모드로 동일한 흐름을 확인하실 수 있습니다."
-              : "누르면 마이크 권한을 한 번 요청합니다. 언제든 종료할 수 있습니다."}
-          </p>
+          {supported === false && (
+            <p className="text-xs leading-relaxed text-fog">
+              이 브라우저는 음성 인식을 지원하지 않습니다. 아래 데모 모드를 이용하세요.
+            </p>
+          )}
         </div>
       </Panel>
 
-      <Panel className="p-6">
+      <Panel className="p-4 @md:p-6">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-bold text-white">데모 모드</h2>
-          <span className="rounded-md bg-warn/12 px-2 py-0.5 text-[11px] font-semibold text-warn ring-1 ring-warn/25">
-            마이크 없이 시연
-          </span>
+          <h2 className="text-[15px] font-bold text-white">데모 모드</h2>
+          <span className="text-[11px] text-fog">마이크 없이 시연</span>
         </div>
-        <p className="mt-1.5 text-sm leading-relaxed text-mist">
-          마이크를 쓸 수 없는 환경(권한 차단, 조용한 심사장, Chrome 계열이 아닌 브라우저)을 위한 모드입니다.
-          미리 준비한 통화 대본이 실제 통화 속도로 재생되며,{" "}
-          <strong className="font-semibold text-white">마이크 인식과 완전히 같은 분석 경로</strong>를 그대로
-          지납니다.
-        </p>
 
-        <ul className="mt-5 space-y-2.5">
+        <ul className="mt-3 flex flex-wrap gap-2">
           {DEMO_SCRIPTS.map((s) => (
-            <li
-              key={s.id}
-              className="flex flex-col gap-3 rounded-xl border border-line bg-ink/50 p-4 @md:flex-row @md:items-center @md:justify-between"
-            >
-              <div className="min-w-0">
-                <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-bold text-white">
-                  {s.label}
-                  <span
-                    className={`shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold whitespace-nowrap ring-1 ${
-                      s.expected === "높음"
-                        ? "bg-danger/12 text-danger ring-danger/25"
-                        : s.expected === "중간"
-                          ? "bg-warn/12 text-warn ring-warn/25"
-                          : "bg-safe/12 text-safe ring-safe/25"
-                    }`}
-                  >
-                    예상 {s.expected}
-                  </span>
-                </p>
-                <p className="mt-1 text-[12px] leading-relaxed text-fog">{s.desc}</p>
-              </div>
+            <li key={s.id}>
               <button
                 type="button"
                 onClick={() => onStartDemo(s)}
-                className="shrink-0 rounded-xl border border-line bg-ink-2/60 px-4 py-2.5 text-xs font-bold text-mist transition hover:border-brand/50 hover:text-white"
+                className="flex items-center gap-1.5 rounded-xl border border-line bg-ink/50 px-3 py-2 text-[13px] font-bold text-mist transition hover:border-brand/50 hover:text-white"
               >
-                재생하기
+                {s.label.split(" — ")[0]}
+                <span
+                  className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold whitespace-nowrap ring-1 ${
+                    s.expected === "높음"
+                      ? "bg-danger/12 text-danger ring-danger/25"
+                      : s.expected === "중간"
+                        ? "bg-warn/12 text-warn ring-warn/25"
+                        : "bg-safe/12 text-safe ring-safe/25"
+                  }`}
+                >
+                  {s.expected}
+                </span>
               </button>
             </li>
           ))}
         </ul>
 
-        <div className="mt-5 border-t border-line/60 pt-4">
-          <p className="text-xs leading-relaxed text-fog">
-            직접 만든 대본으로 시연하려면 <code className="text-mist">상대: 발화</code> /{" "}
-            <code className="text-mist">나: 발화</code> 형식의 텍스트 파일을 올리세요. 접두어가 없는 줄은
-            상대방 발화로 처리합니다.
-          </p>
+        <div className="mt-3 border-t border-line/60 pt-2.5">
           <input
             ref={fileRef}
             type="file"
@@ -989,23 +910,14 @@ function IdlePanel({
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="mt-3 rounded-xl border border-line bg-ink-2/60 px-4 py-2.5 text-xs font-bold text-mist transition hover:border-brand/50 hover:text-white"
+            className="text-xs font-semibold text-fog underline underline-offset-4 transition hover:text-brand"
           >
-            대본 파일 올리기 (.txt)
+            내 대본 올리기 (.txt)
           </button>
         </div>
       </Panel>
 
-      <p className="rounded-xl border border-line/70 bg-ink-2/50 px-4 py-3 text-xs leading-relaxed text-fog">
-        <span className="font-semibold text-mist">범위 안내</span> · 이동통신 회선의 통화 오디오는 iOS·Android
-        정책상 앱이 직접 가져올 수 없습니다. 그래서 이 MVP는 스피커폰 + 기기 마이크로 소리를 받는 방식을
-        씁니다. 통신사 연동(방식 B)은 현재 구현 범위에 포함되어 있지 않습니다. 텍스트로 정리해서 분석받고
-        싶으시면{" "}
-        <Link href="/check" className="font-semibold text-brand underline underline-offset-4">
-          상황 입력 화면
-        </Link>
-        을 이용하세요.
-      </p>
+
     </div>
   );
 }

@@ -30,12 +30,6 @@ export default function manifest(): MetadataRoute.Manifest {
         description: "통화를 스피커폰으로 바꾸고 바로 감지를 시작합니다",
         url: "/live",
       },
-      {
-        name: "상황 입력",
-        short_name: "상황 입력",
-        description: "통화·문자 내용을 텍스트로 입력해 분석받습니다",
-        url: "/check",
-      },
     ],
   };
 }

@@ -27,7 +27,7 @@ export function SectionTitle({
   desc?: string;
 }) {
   return (
-    <div className="mb-4 @md:mb-6">
+    <div className="mb-3 @md:mb-6">
       {eyebrow && (
         <p className="mb-1.5 text-[10px] font-semibold tracking-[0.18em] text-brand uppercase @md:mb-2 @md:text-xs">
           {eyebrow}
@@ -207,10 +207,8 @@ export function MvpNotice({ className = "" }: { className?: string }) {
     <p
       className={`rounded-xl border border-line/70 bg-ink-2/50 px-4 py-3 text-xs leading-relaxed text-fog ${className}`}
     >
-      <span className="font-semibold text-mist">MVP 안내</span> · 현재 버전은 통신사 회선 연동 없이
-      동작합니다. 실시간 감지는 통화 오디오를 가로채는 것이 아니라, 스피커폰으로 나오는 소리를 기기 마이크로
-      받아 인식하는 방식입니다(OS 정책상 앱이 통화 오디오에 직접 접근할 수 없습니다). 신고 이력·기관
-      대표번호는 데모용 가상 데이터이며, 입력 내용은 서버에 저장되지 않고 브라우저 세션에서만 유지됩니다.
+      <span className="font-semibold text-mist">MVP 안내</span> · 신고 이력과 기관 번호는 가상 데이터이며,
+      입력 내용은 서버에 저장되지 않습니다.
     </p>
   );
 }

@@ -241,14 +241,16 @@ export function CounterScriptCard({
         <p className="text-[11px] font-bold tracking-[0.18em] text-brand uppercase">
           이렇게 되물어 보세요
         </p>
-        <p className="text-[11px] text-fog">진짜 기관이나 가족이라면 바로 답합니다.</p>
+        <p className="hidden text-[11px] text-fog @md:block">진짜 기관이나 가족이라면 바로 답합니다.</p>
       </div>
 
-      <ul className="mt-3 space-y-2">
+      <ul className="mt-2.5 space-y-2">
         {questions.map((q, i) => (
           <li
             key={q}
-            className="pb-fade flex items-start gap-3 rounded-xl border border-brand/25 bg-brand/[0.07] px-4 py-3.5"
+            className={`pb-fade items-start gap-3 rounded-xl border border-brand/25 bg-brand/[0.07] px-3.5 py-3 ${
+              i === 0 ? "flex" : "hidden @md:flex"
+            }`}
           >
             <span
               className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand/15 font-mono text-[11px] font-bold text-brand"
@@ -512,7 +514,7 @@ export function InterventionBanner({
   return (
     <div
       role="alert"
-      className={`pb-fade sticky top-16 z-30 mb-4 rounded-2xl border p-4 backdrop-blur-md @md:p-5 ${
+      className={`pb-fade sticky top-14 z-30 mb-3 rounded-2xl border p-3.5 backdrop-blur-md @md:top-16 @md:p-5 ${
         high ? "border-danger/50 bg-danger/12" : "border-warn/45 bg-warn/10"
       }`}
     >
@@ -558,17 +560,8 @@ export function InterventionBanner({
 
 export function LivePrivacyNotice({ className = "" }: { className?: string }) {
   return (
-    <details className={`rounded-xl border border-line/70 bg-ink-2/50 px-4 py-3 ${className}`}>
-      <summary className="cursor-pointer list-none text-xs font-semibold text-fog transition hover:text-brand">
-        음성 처리 안내 · 원문은 기본으로 삭제됩니다
-      </summary>
-      <p className="mt-2 text-xs leading-relaxed text-fog">
-        실시간 인식은 Chrome 내장 Web Speech API를 사용하며, 이 방식은 마이크 음성이 브라우저 제조사의 음성
-        인식 서버로 전송됩니다. 변환된 텍스트는 위험도 분석 목적으로만 전송되고 서버에 저장되지 않습니다.
-        통화 상대의 개인정보가 포함될 수 있어
-        <span className="font-semibold text-mist"> 종료 시 기본값은 &ldquo;원문 삭제&rdquo;</span>이며, 남길지
-        여부는 종료 화면에서 직접 고르실 수 있습니다.
-      </p>
-    </details>
+    <p className={`text-[11px] text-fog/70 ${className}`}>
+      음성은 브라우저 인식 서버로 전송되고, 원문은 종료 시 삭제됩니다.
+    </p>
   );
 }

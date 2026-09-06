@@ -6,8 +6,7 @@ import { useEffect, useState } from "react";
 import { useCase } from "@/lib/case-store";
 
 const FLOW: { href: string; alt?: string; label: string; step: string }[] = [
-  // 감지 단계는 진입로가 둘이다: 텍스트 입력(/check)과 실시간 통화(/live)
-  { href: "/check", alt: "/live", label: "감지", step: "01" },
+  { href: "/live", label: "감지", step: "01" },
   { href: "/result", label: "분석", step: "02" },
   { href: "/verify", label: "역검증", step: "03" },
   { href: "/support", label: "심리지원", step: "04" },
@@ -28,7 +27,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line/70 bg-ink/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-5">
+      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 @md:h-16 @md:px-5">
         <Link href="/" className="flex min-w-0 items-center gap-2.5">
           <span className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-brand-deep text-sm font-black text-white">
             PB
@@ -76,14 +75,6 @@ export function Header() {
             비상연락처
           </Link>
           <Link
-            href="/check"
-            className={`hidden rounded-lg px-3 py-1.5 text-xs font-semibold transition @md:block ${
-              pathname === "/check" ? "bg-brand/15 text-brand" : "text-fog hover:bg-line/40 hover:text-white"
-            }`}
-          >
-            상황 입력
-          </Link>
-          <Link
             href="/live"
             className="inline-flex items-center gap-1.5 rounded-lg bg-danger/15 px-3 py-1.5 text-xs font-bold text-danger ring-1 ring-danger/30 transition hover:bg-danger/25"
           >
@@ -102,7 +93,7 @@ export function FlowSteps() {
   if (current < 0) return null;
 
   return (
-    <nav aria-label="진행 단계" className="mb-4 @md:mb-8">
+    <nav aria-label="진행 단계" className="mb-2.5 @md:mb-8">
       {/* 모바일: 칩 다섯 개를 늘어놓을 폭이 없다. 지금 어디인지만 알려 준다. */}
       <p className="text-[11px] font-semibold text-brand @md:hidden">
         <span className="font-mono opacity-70">{FLOW[current].step}</span> {FLOW[current].label}

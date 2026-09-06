@@ -36,7 +36,7 @@ export default function FollowUpPage() {
   const loading = !report && !error;
 
   useEffect(() => {
-    if (hydrated && !input) router.replace("/check");
+    if (hydrated && !input) router.replace("/live");
   }, [hydrated, input, router]);
 
   const generate = useCallback(async () => {
@@ -125,13 +125,13 @@ export default function FollowUpPage() {
       </div>
 
       {loading && (
-        <Panel className="print-hide flex items-center gap-3 p-6 text-sm text-fog">
+        <Panel className="print-hide flex items-center gap-3 p-4 @md:p-6 text-sm text-fog">
           <Spinner /> AI가 상담 기록을 정리하고 있습니다…
         </Panel>
       )}
 
       {error && (
-        <Panel className="print-hide border-danger/40 bg-danger/10 p-5">
+        <Panel className="print-hide border-danger/40 bg-danger/10 p-4 @md:p-5">
           <p className="mb-3 text-sm text-danger">{error}</p>
           <PrimaryButton
             tone="ghost"
@@ -147,12 +147,12 @@ export default function FollowUpPage() {
 
       {report && (
         <div className="space-y-5 pb-fade print-hide">
-          <Panel className="border-brand/25 bg-brand/[0.06] p-5">
+          <Panel className="border-brand/25 bg-brand/[0.06] p-4 @md:p-5">
             <p className="mb-1.5 text-[11px] font-bold tracking-widest text-brand uppercase">종합 요약</p>
             <p className="text-[15px] leading-relaxed text-white">{report.summary}</p>
           </Panel>
 
-          <Panel className="p-6">
+          <Panel className="p-4 @md:p-6">
             <h2 className="mb-4 text-sm font-bold text-white">상황 타임라인</h2>
             <ol className="relative space-y-5 border-l border-line pl-6">
               {report.timeline.map((t, i) => (
@@ -166,7 +166,7 @@ export default function FollowUpPage() {
             </ol>
           </Panel>
 
-          <Panel className="p-6">
+          <Panel className="p-4 @md:p-6">
             <h2 className="mb-3 text-sm font-bold text-white">신고 시 필요한 사실관계</h2>
             <ul className="space-y-2">
               {report.facts.map((f, i) => (
@@ -178,7 +178,7 @@ export default function FollowUpPage() {
             </ul>
           </Panel>
 
-          <Panel className="p-6">
+          <Panel className="p-4 @md:p-6">
             <h2 className="mb-4 text-sm font-bold text-white">지금부터 해야 할 일</h2>
             <ol className="space-y-3">
               {report.actions.map((a, i) => (
@@ -195,7 +195,7 @@ export default function FollowUpPage() {
             </ol>
           </Panel>
 
-          <Panel className="p-6">
+          <Panel className="p-4 @md:p-6">
             <h2 className="mb-4 text-sm font-bold text-white">신고·상담 창구 연결</h2>
             <div className="grid gap-3 @md:grid-cols-3">
               {HELPLINES.map((h) => (
@@ -230,7 +230,7 @@ export default function FollowUpPage() {
               tone="ghost"
               onClick={() => {
                 resetCase();
-                router.push("/check");
+                router.push("/live");
               }}
             >
               기록 삭제하고 새로 시작
@@ -243,7 +243,7 @@ export default function FollowUpPage() {
         </div>
       )}
 
-      <MvpNotice className="print-hide mt-6" />
+      <MvpNotice className="print-hide mt-4" />
 
       {report && (
         <ReportSheet

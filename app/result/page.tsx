@@ -40,7 +40,7 @@ export default function ResultPage() {
   const { analysis, input } = caseState;
 
   useEffect(() => {
-    if (hydrated && !analysis) router.replace("/check");
+    if (hydrated && !analysis) router.replace("/live");
   }, [hydrated, analysis, router]);
 
   if (!hydrated || !analysis || !input) {
@@ -65,7 +65,7 @@ export default function ResultPage() {
         <SectionTitle eyebrow="STEP 02 · 분석" title={t.head} desc={t.sub} />
 
         {/* 위험도 게이지 */}
-        <Panel className="mb-5 p-6">
+        <Panel className="mb-5 p-4 @md:p-6">
           <div className="mb-2 flex items-baseline justify-between">
             <span className="text-sm font-semibold text-mist">종합 위험 점수</span>
             <span className="font-mono text-2xl font-bold text-white">
@@ -88,7 +88,7 @@ export default function ResultPage() {
         </Panel>
 
         {/* AI 첫 메시지 */}
-        <Panel className="mb-5 border-brand/25 bg-brand/[0.06] p-5">
+        <Panel className="mb-5 border-brand/25 bg-brand/[0.06] p-4 @md:p-5">
           <p className="mb-1.5 text-[11px] font-bold tracking-widest text-brand uppercase">
             AI 금융 중재자
           </p>
@@ -96,7 +96,7 @@ export default function ResultPage() {
         </Panel>
 
         {/* 한눈에 보기 — 길게 읽기 어려운 분을 위해 결론만 세 줄로 */}
-        <Panel className="mb-5 border-brand/25 bg-brand/[0.06] p-6">
+        <Panel className="mb-5 border-brand/25 bg-brand/[0.06] p-4 @md:p-6">
           <h2 className="mb-3 text-sm font-bold text-brand">한눈에 보기</h2>
           <ol className="space-y-2.5">
             {[
@@ -120,7 +120,7 @@ export default function ResultPage() {
         </Panel>
 
         {/* 판단 근거 */}
-        <Panel className="mb-5 p-6">
+        <Panel className="mb-5 p-4 @md:p-6">
           <h2 className="mb-3 text-sm font-bold text-white">이렇게 판단했습니다</h2>
           <p className="text-sm leading-relaxed text-mist">{analysis.reasoning}</p>
 
@@ -146,7 +146,7 @@ export default function ResultPage() {
 
         {/* 점수 구성 */}
         {analysis.scoreBreakdown && (
-          <Panel className="mb-5 p-6">
+          <Panel className="mb-5 p-4 @md:p-6">
             <ScoreBreakdownCard
               breakdown={analysis.scoreBreakdown}
               finalScore={analysis.riskScore}
@@ -157,7 +157,7 @@ export default function ResultPage() {
 
         {/* 지금 하실 일 */}
         {analysis.immediateAdvice.length > 0 && (
-          <Panel className="mb-6 border-warn/25 bg-warn/[0.05] p-6">
+          <Panel className="mb-6 border-warn/25 bg-warn/[0.05] p-4 @md:p-6">
             <h2 className="mb-3 text-sm font-bold text-warn">지금 바로 지켜주세요</h2>
             <ul className="space-y-2">
               {analysis.immediateAdvice.map((a, i) => (
@@ -178,14 +178,14 @@ export default function ResultPage() {
             AI와 먼저 이야기하기
           </PrimaryButton>
           <Link
-            href="/check"
+            href="/live"
             className="self-center text-xs font-semibold text-fog underline underline-offset-4 hover:text-white"
           >
-            다시 입력하기
+            다시 감지하기
           </Link>
         </div>
 
-        <MvpNotice className="mt-6" />
+        <MvpNotice className="mt-4" />
       </div>
     </div>
   );

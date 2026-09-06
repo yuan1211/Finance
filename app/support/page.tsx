@@ -27,7 +27,7 @@ export default function SupportPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (hydrated && !input) router.replace("/check");
+    if (hydrated && !input) router.replace("/live");
   }, [hydrated, input, router]);
 
   const messages = useMemo<ChatMessage[]>(() => {
@@ -105,7 +105,7 @@ export default function SupportPage() {
       />
 
       <Panel className="flex h-[520px] flex-col overflow-hidden">
-        <div className="flex-1 space-y-4 overflow-y-auto p-5">
+        <div className="flex-1 space-y-4 overflow-y-auto p-4 @md:p-5">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
               <div
@@ -176,7 +176,7 @@ export default function SupportPage() {
         </PrimaryButton>
       </div>
 
-      <MvpNotice className="mt-6" />
+      <MvpNotice className="mt-4" />
     </div>
   );
 }

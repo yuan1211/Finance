@@ -12,9 +12,9 @@ const LEVEL_TOKEN: Record<RiskLevel, { text: string; bg: string; ring: string; f
 };
 
 const STROKE: Record<RiskLevel, string> = {
-  낮음: "#2fbf88",
-  중간: "#f5a524",
-  높음: "#ff5d5d",
+  낮음: "#16805d",
+  중간: "#966000",
+  높음: "#c73545",
 };
 
 const TREND_LABEL: Record<RiskTrend, string> = { 상승: "▲ 상승", 유지: "— 유지", 하락: "▼ 하락" };
@@ -68,13 +68,13 @@ export function RiskGauge({
 
       {/* 미터: 30/60 임계선을 눈금으로 함께 보여 준다 */}
       <div className="mt-4">
-        <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-ink/80 ring-1 ring-line/70">
+        <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-ink-2 ring-1 ring-line/70">
           <div
             className={`h-full rounded-full transition-[width] duration-700 ease-out ${t.fill}`}
             style={{ width: `${Math.max(2, score)}%` }}
           />
-          <span className="absolute inset-y-0 left-[30%] w-px bg-ink/90" aria-hidden />
-          <span className="absolute inset-y-0 left-[60%] w-px bg-ink/90" aria-hidden />
+          <span className="absolute inset-y-0 left-[30%] w-px bg-line" aria-hidden />
+          <span className="absolute inset-y-0 left-[60%] w-px bg-line" aria-hidden />
         </div>
         <div className="mt-1.5 flex justify-between font-mono text-[10px] text-fog">
           <span>0 낮음</span>
@@ -126,10 +126,10 @@ function RiskSparkline({ history, level }: { history: { at: number; riskScore: n
         aria-label={`위험도 추이. 현재 ${history[history.length - 1].riskScore}점, 위험도 ${level}`}
       >
         {/* 임계선 30(중간) / 60(높음) — 배경으로 물러나게 둔다 */}
-        <line x1="0" y1={H - 0.6 * H} x2={W} y2={H - 0.6 * H} stroke="#1e2c45" strokeWidth="1" strokeDasharray="3 4" />
-        <line x1="0" y1={H - 0.3 * H} x2={W} y2={H - 0.3 * H} stroke="#1e2c45" strokeWidth="1" strokeDasharray="3 4" />
+        <line x1="0" y1={H - 0.6 * H} x2={W} y2={H - 0.6 * H} stroke="#d6e2ef" strokeWidth="1" strokeDasharray="3 4" />
+        <line x1="0" y1={H - 0.3 * H} x2={W} y2={H - 0.3 * H} stroke="#d6e2ef" strokeWidth="1" strokeDasharray="3 4" />
         <path d={path.d} fill="none" stroke={STROKE[level]} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        <circle cx={path.last.x} cy={path.last.y} r="4" fill={STROKE[level]} stroke="#0d1524" strokeWidth="2" />
+        <circle cx={path.last.x} cy={path.last.y} r="4" fill={STROKE[level]} stroke="#ffffff" strokeWidth="2" />
       </svg>
     </figure>
   );
@@ -258,7 +258,7 @@ export function CounterScriptCard({
             >
               {i + 1}
             </span>
-            <p className="flex-1 text-[15px] leading-relaxed font-semibold text-white @md:text-base">
+            <p className="flex-1 text-[15px] leading-relaxed font-semibold text-heading @md:text-base">
               &ldquo;{q}&rdquo;
             </p>
             {onSpeak && (
@@ -487,8 +487,8 @@ export function VoiceToggle({
       disabled={disabled}
       title={hint}
       onClick={() => onChange(!on)}
-      className={`inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[11px] font-bold ring-1 transition disabled:cursor-not-allowed disabled:opacity-45 ${
-        on ? "bg-brand/12 text-brand ring-brand/30" : "bg-ink/50 text-fog ring-line hover:text-white"
+      className={`inline-flex shrink-0 items-center gap-2 rounded-lg px-2.5 py-1.5 text-[11px] font-bold whitespace-nowrap ring-1 transition disabled:cursor-not-allowed disabled:opacity-45 ${
+        on ? "bg-brand/12 text-brand ring-brand/30" : "bg-ink/50 text-fog ring-line hover:text-heading"
       }`}
     >
       <span aria-hidden>{on ? "🔊" : "🔈"}</span>
@@ -548,7 +548,7 @@ export function InterventionBanner({
           <button
             type="button"
             onClick={onDismiss}
-            className="rounded-xl border border-line px-3 py-2.5 text-xs font-semibold text-fog transition hover:text-white"
+            className="rounded-xl border border-line px-3 py-2.5 text-xs font-semibold text-fog transition hover:text-heading"
           >
             계속 듣기
           </button>
@@ -560,7 +560,7 @@ export function InterventionBanner({
 
 export function LivePrivacyNotice({ className = "" }: { className?: string }) {
   return (
-    <p className={`text-[11px] text-fog/70 ${className}`}>
+    <p className={`text-[11px] text-fog ${className}`}>
       음성은 브라우저 인식 서버로 전송되고, 원문은 종료 시 삭제됩니다.
     </p>
   );

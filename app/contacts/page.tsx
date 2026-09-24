@@ -64,7 +64,7 @@ export default function ContactsPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="예) 김보호"
-              className="w-full rounded-xl border border-line bg-ink/70 px-3 py-2 text-[13px] text-white placeholder:text-fog/50 outline-none focus:border-brand/60 focus:ring-2 focus:ring-brand/20"
+              className="w-full rounded-xl border border-line bg-ink/70 px-3 py-2 text-[13px] text-heading placeholder:text-fog outline-none focus:border-brand/60 focus:ring-2 focus:ring-brand/20"
             />
           </div>
           <div>
@@ -75,7 +75,7 @@ export default function ContactsPage() {
               id="relation"
               value={relation}
               onChange={(e) => setRelation(e.target.value)}
-              className="w-full rounded-xl border border-line bg-ink/70 px-3 py-2 text-[13px] text-white outline-none focus:border-brand/60 focus:ring-2 focus:ring-brand/20"
+              className="w-full rounded-xl border border-line bg-ink/70 px-3 py-2 text-[13px] text-heading outline-none focus:border-brand/60 focus:ring-2 focus:ring-brand/20"
             >
               {["가족", "자녀", "부모", "배우자", "친구", "지인"].map((r) => (
                 <option key={r} value={r} className="bg-ink">
@@ -94,7 +94,7 @@ export default function ContactsPage() {
               onChange={(e) => setPhone(e.target.value)}
               placeholder="010-0000-0000"
               inputMode="tel"
-              className="w-full rounded-xl border border-line bg-ink/70 px-3 py-2 text-[13px] text-white placeholder:text-fog/50 outline-none focus:border-brand/60 focus:ring-2 focus:ring-brand/20"
+              className="w-full rounded-xl border border-line bg-ink/70 px-3 py-2 text-[13px] text-heading placeholder:text-fog outline-none focus:border-brand/60 focus:ring-2 focus:ring-brand/20"
             />
           </div>
           <div className="col-span-2 @5xl:col-span-1">
@@ -108,7 +108,7 @@ export default function ContactsPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="family@example.com"
               inputMode="email"
-              className="w-full rounded-xl border border-line bg-ink/70 px-3 py-2 text-[13px] text-white placeholder:text-fog/50 outline-none focus:border-brand/60 focus:ring-2 focus:ring-brand/20"
+              className="w-full rounded-xl border border-line bg-ink/70 px-3 py-2 text-[13px] text-heading placeholder:text-fog outline-none focus:border-brand/60 focus:ring-2 focus:ring-brand/20"
             />
           </div>
           <PrimaryButton type="submit" className="col-span-2 h-[40px] px-5 py-0 @5xl:col-span-1">
@@ -129,7 +129,7 @@ export default function ContactsPage() {
       </Panel>
 
       <Panel className="p-3 @md:p-6">
-        <h2 className="mb-2 text-sm font-bold text-white">
+        <h2 className="mb-2 text-sm font-bold text-heading">
           등록된 비상연락처
           <span className="ml-2 font-mono text-xs text-fog">{contacts.length}/2</span>
         </h2>
@@ -148,7 +148,7 @@ export default function ContactsPage() {
                 className="flex items-center justify-between rounded-xl border border-line/70 bg-ink/50 px-4 py-3.5"
               >
                 <div>
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold text-heading">
                     {c.name}
                     <span className="ml-2 rounded-md bg-line/60 px-2 py-0.5 text-[11px] font-semibold text-mist">
                       {c.relation}

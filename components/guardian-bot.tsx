@@ -211,7 +211,7 @@ function GuardianPanel({
 
             {/* 상대에게 그대로 읽을 말이 있으면 그것이 이 단계의 전부다 */}
             {step.say && (
-              <p className="rounded-2xl border border-brand/30 bg-brand/10 px-4 py-3.5 text-center text-[15px] leading-relaxed font-semibold text-white">
+              <p className="rounded-2xl border border-brand/30 bg-brand/10 px-4 py-3.5 text-center text-[15px] leading-relaxed font-semibold text-heading">
                 “{step.say}”
               </p>
             )}
@@ -229,7 +229,7 @@ function GuardianPanel({
                 <button
                   type="button"
                   onClick={() => goStep(stepIndex - 1)}
-                  className="rounded-xl border border-line px-3.5 py-2.5 text-[13px] font-semibold text-fog transition hover:text-white"
+                  className="rounded-xl border border-line px-3.5 py-2.5 text-[13px] font-semibold text-fog transition hover:text-heading"
                 >
                   이전
                 </button>
@@ -238,7 +238,7 @@ function GuardianPanel({
                 <button
                   type="button"
                   onClick={() => goStep(stepIndex + 1)}
-                  className="flex-1 rounded-xl bg-white/95 px-4 py-2.5 text-[13px] font-bold text-ink transition hover:bg-white"
+                  className="flex-1 rounded-xl bg-brand px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-brand-deep"
                 >
                   다음
                 </button>
@@ -261,14 +261,14 @@ function GuardianPanel({
           <button
             type="button"
             onClick={onDismiss}
-            className="w-full rounded-xl border border-line px-4 py-2.5 text-[13px] font-semibold text-fog transition hover:text-white"
+            className="w-full rounded-xl border border-line px-4 py-2.5 text-[13px] font-semibold text-fog transition hover:text-heading"
           >
             괜찮아요, 계속 듣기
           </button>
         </div>
 
         {/* 앱이 은행 앱을 잠글 수는 없다. 그 사실을 한 줄로만 남긴다. */}
-        <p className="mt-2.5 text-center text-[11px] text-fog/70">송금은 직접 멈추셔야 합니다.</p>
+        <p className="mt-2.5 text-center text-[11px] text-fog">송금은 직접 멈추셔야 합니다.</p>
       </div>
     </div>
   );

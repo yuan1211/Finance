@@ -163,7 +163,7 @@ export default function VerifyPage() {
                 }`}
               >
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                  <h2 className="text-sm font-bold text-white">{sk.title}</h2>
+                  <h2 className="text-sm font-bold text-heading">{sk.title}</h2>
                   <StatusPill status={status} />
                 </div>
 
@@ -344,7 +344,7 @@ function ReplyWatch({
           </p>
         </div>
         {!token && (
-          <p className="mt-1.5 text-[11px] text-fog/70">메일 발송이 꺼져 있어 도착을 시뮬레이션합니다.</p>
+          <p className="mt-1.5 text-[11px] text-fog">메일 발송이 꺼져 있어 도착을 시뮬레이션합니다.</p>
         )}
       </div>
     );

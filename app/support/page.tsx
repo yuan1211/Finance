@@ -111,7 +111,7 @@ export default function SupportPage() {
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
                   m.role === "user"
-                    ? "rounded-br-md bg-brand/20 text-white ring-1 ring-brand/30"
+                    ? "rounded-br-md bg-brand/20 text-heading ring-1 ring-brand/30"
                     : "rounded-bl-md bg-ink/70 text-mist ring-1 ring-line"
                 }`}
               >
@@ -142,7 +142,7 @@ export default function SupportPage() {
                 type="button"
                 onClick={() => void send(q)}
                 disabled={streaming}
-                className="rounded-lg border border-line bg-ink-2/60 px-3 py-1.5 text-xs font-medium text-mist transition hover:border-brand/50 hover:text-white disabled:opacity-40"
+                className="rounded-lg border border-line bg-ink-2/60 px-3 py-1.5 text-xs font-medium text-mist transition hover:border-brand/50 hover:text-heading disabled:opacity-40"
               >
                 {q}
               </button>
@@ -160,7 +160,7 @@ export default function SupportPage() {
               onChange={(e) => setDraft(e.target.value)}
               placeholder="지금 상황이나 걱정되는 점을 적어주세요"
               disabled={streaming}
-              className="flex-1 rounded-xl border border-line bg-ink/70 px-4 py-3 text-sm text-white placeholder:text-fog/60 outline-none transition focus:border-brand/60 focus:ring-2 focus:ring-brand/20 disabled:opacity-60"
+              className="flex-1 rounded-xl border border-line bg-ink/70 px-4 py-3 text-sm text-heading placeholder:text-fog outline-none transition focus:border-brand/60 focus:ring-2 focus:ring-brand/20 disabled:opacity-60"
             />
             <PrimaryButton type="submit" disabled={streaming || !draft.trim()} className="px-5">
               보내기

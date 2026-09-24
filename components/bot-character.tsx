@@ -27,8 +27,8 @@ export function BotCharacter({
       <svg viewBox="0 0 120 120" width={size} height={size} role="presentation">
         <defs>
           <linearGradient id="pb-head" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1b2b45" />
-            <stop offset="100%" stopColor="#111c30" />
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="100%" stopColor="#e5f1ff" />
           </linearGradient>
         </defs>
 

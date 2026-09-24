@@ -599,8 +599,8 @@ export default function LivePage() {
       {phase !== "idle" && (
         <div className="grid gap-3 @5xl:grid-cols-[1fr_320px]">
           {/* 실시간 자막 — 모바일에서는 위험도 아래로 내린다 */}
-          <Panel className="order-2 flex max-h-52 min-h-[8.5rem] flex-col overflow-hidden @md:max-h-[26rem] @md:min-h-[17rem] @5xl:order-1 @5xl:max-h-[35rem] @5xl:min-h-[21rem]">
-            <div className="flex items-center justify-between gap-3 border-b border-line/70 px-5 py-3">
+          <Panel className="order-2 flex flex-col overflow-hidden @5xl:order-1">
+            <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-line/70 px-5 py-3">
               <div className="flex items-center gap-2.5">
                 <span
                   className={`h-2.5 w-2.5 rounded-full ${
@@ -608,7 +608,7 @@ export default function LivePage() {
                   }`}
                   aria-hidden
                 />
-                <span className="text-sm font-bold text-white">
+                <span className="text-sm font-bold whitespace-nowrap text-heading">
                   {phase === "ended"
                     ? "세션 종료됨"
                     : listening
@@ -625,7 +625,7 @@ export default function LivePage() {
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <VoiceToggle
                   on={voiceOn}
                   onChange={setVoiceOn}
@@ -642,16 +642,16 @@ export default function LivePage() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto">
+            <div className="h-80 shrink-0 overflow-y-auto @md:h-96 @5xl:h-[28rem]">
               <TranscriptFeed segments={segments} interim={interim} signals={signals} />
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 border-t border-line/70 px-5 py-3">
+            <div className="flex shrink-0 flex-wrap items-center gap-2 border-t border-line/70 px-5 py-3">
               {running ? (
                 <PrimaryButton
                   tone="danger"
                   onClick={() => void stopSession()}
-                  className="min-h-11 flex-1 px-4 py-2.5 text-sm @md:flex-none @md:text-xs"
+                  className="shrink-0 flex-none whitespace-nowrap px-4 py-2.5 text-xs"
                 >
                   통화 감지 종료
                 </PrimaryButton>
@@ -709,7 +709,7 @@ export default function LivePage() {
 
       {phase === "ended" && (
         <Panel className="mt-4 p-4 @md:p-6">
-          <h2 className="text-lg font-bold text-white">이제 어떻게 할까요?</h2>
+          <h2 className="text-lg font-bold text-heading">이제 어떻게 할까요?</h2>
           <p className="mt-1.5 text-[13px] leading-relaxed text-mist">
             위험도 {risk.level} {risk.score}점 · {risk.scamStage} 단계 · {formatClock(elapsed)}
           </p>
@@ -777,10 +777,10 @@ function SaveOption({
         name="keep-transcript"
         checked={checked}
         onChange={onSelect}
-        className="mt-1 h-4 w-4 shrink-0 accent-[#3ba6ff]"
+        className="mt-1 h-4 w-4 shrink-0 accent-[#0868bd]"
       />
       <span>
-        <span className="flex items-center gap-2 text-sm font-bold text-white">
+        <span className="flex items-center gap-2 text-sm font-bold text-heading">
           {title}
           {badge && (
             <span className="rounded-md bg-safe/12 px-1.5 py-0.5 text-[10px] font-bold text-safe ring-1 ring-safe/25">
@@ -812,22 +812,22 @@ function IdlePanel({
   const fileRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="space-y-2.5">
-      <Panel className="p-3 @md:p-6">
+    <div className="space-y-3">
+      <div className="rounded-[26px] border border-[#d6e7f7] bg-white p-4 shadow-[0_10px_35px_rgba(25,55,85,0.07)] @md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h2 className="text-[15px] font-bold text-white">실시간 감지</h2>
-            <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-mist">
-              통화를 <strong className="font-semibold text-white">스피커폰</strong>으로 바꿔 주세요.
+            <h2 className="text-[15px] font-bold text-[#244f78]">실시간 감지</h2>
+            <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-[#5f738a]">
+              통화를 <strong className="font-semibold text-[#244f78]">스피커폰</strong>으로 바꿔 주세요.
             </p>
           </div>
           <span
             className={`rounded-md px-2 py-1 text-[11px] font-semibold ring-1 ${
               supported === null
-                ? "bg-line/40 text-fog ring-line"
+                ? "bg-[#eef4fb] text-[#5f738a] ring-[#d9e3ee]"
                 : supported
-                  ? "bg-safe/12 text-safe ring-safe/25"
-                  : "bg-warn/12 text-warn ring-warn/25"
+                  ? "bg-[#eaf7ef] text-[#237647] ring-[#c5e7d1]"
+                  : "bg-[#fff6e5] text-[#946000] ring-[#efd7a5]"
             }`}
           >
             {supported === null ? "브라우저 확인 중" : supported ? "음성 인식 사용 가능" : "음성 인식 미지원"}
@@ -835,7 +835,7 @@ function IdlePanel({
         </div>
 
         <div className="mt-3.5 max-w-xs">
-          <label htmlFor="live-caller" className="mb-1.5 block text-xs font-semibold text-fog">
+          <label htmlFor="live-caller" className="mb-1.5 block text-xs font-semibold text-[#5f738a]">
             발신번호 <span className="font-normal opacity-70">(선택)</span>
           </label>
           <input
@@ -843,31 +843,31 @@ function IdlePanel({
             value={callerNumber}
             onChange={(e) => onCallerChange(e.target.value)}
             placeholder="010-0000-0000"
-            className="w-full rounded-xl border border-line bg-ink/70 px-3.5 py-2.5 text-sm text-white placeholder:text-fog/50 outline-none transition focus:border-brand/60 focus:ring-2 focus:ring-brand/20"
+            className="w-full rounded-xl border border-[#ccd8e5] bg-white px-3.5 py-3 text-sm text-[#244f78] placeholder:text-[#718298] outline-none transition focus:border-[#0868bd] focus:ring-2 focus:ring-[#0868bd]/20"
           />
         </div>
 
         <div className="mt-3.5 flex flex-col gap-2.5 @md:flex-row @md:items-center">
-          <PrimaryButton
-            tone="danger"
+          <button
+            type="button"
             onClick={onStartMic}
             disabled={supported === false}
-            className="min-h-12 w-full text-base @md:w-auto @md:min-w-48 @md:text-sm"
+            className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#0868bd] px-6 py-3 text-base font-bold text-white shadow-sm transition hover:bg-[#07589f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0868bd] disabled:cursor-not-allowed disabled:bg-[#e1e8f0] disabled:text-[#5f738a] disabled:shadow-none @md:w-auto @md:min-w-48 @md:text-sm"
           >
             통화 감지 시작
-          </PrimaryButton>
+          </button>
           {supported === false && (
-            <p className="text-xs leading-relaxed text-fog">
+            <p className="text-xs leading-relaxed text-[#5f738a]">
               이 브라우저는 음성 인식을 지원하지 않습니다. 아래 데모 모드를 이용하세요.
             </p>
           )}
         </div>
-      </Panel>
+      </div>
 
-      <Panel className="p-4 @md:p-6">
+      <div className="rounded-[26px] border border-[#d6e7f7] bg-[#f0f7ff] p-4 shadow-[0_10px_35px_rgba(25,55,85,0.04)] @md:p-6">
         <div className="flex items-center gap-2">
-          <h2 className="text-[15px] font-bold text-white">데모 모드</h2>
-          <span className="text-[11px] text-fog">마이크 없이 시연</span>
+          <h2 className="text-[15px] font-bold text-[#244f78]">데모 모드</h2>
+          <span className="text-[11px] text-[#5f738a]">마이크 없이 시연</span>
         </div>
 
         <ul className="mt-3 flex flex-wrap gap-2">
@@ -876,16 +876,16 @@ function IdlePanel({
               <button
                 type="button"
                 onClick={() => onStartDemo(s)}
-                className="flex items-center gap-1.5 rounded-xl border border-line bg-ink/50 px-3 py-2 text-[13px] font-bold text-mist transition hover:border-brand/50 hover:text-white"
+                className="flex min-h-11 items-center gap-1.5 rounded-xl border border-[#ccd8e5] bg-white px-3 py-2.5 text-[13px] font-bold text-[#244f78] transition hover:border-[#0868bd] hover:bg-[#e7f1fc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0868bd]"
               >
                 {s.label.split(" — ")[0]}
                 <span
                   className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold whitespace-nowrap ring-1 ${
                     s.expected === "높음"
-                      ? "bg-danger/12 text-danger ring-danger/25"
+                      ? "bg-[#fff0f0] text-[#b73535] ring-[#f1cccc]"
                       : s.expected === "중간"
-                        ? "bg-warn/12 text-warn ring-warn/25"
-                        : "bg-safe/12 text-safe ring-safe/25"
+                        ? "bg-[#fff6e5] text-[#946000] ring-[#efd7a5]"
+                        : "bg-[#eaf7ef] text-[#237647] ring-[#c5e7d1]"
                   }`}
                 >
                   {s.expected}
@@ -895,7 +895,7 @@ function IdlePanel({
           ))}
         </ul>
 
-        <div className="mt-3 border-t border-line/60 pt-2.5">
+        <div className="mt-4 border-t border-[#d9e3ee] pt-3">
           <input
             ref={fileRef}
             type="file"
@@ -910,12 +910,12 @@ function IdlePanel({
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="text-xs font-semibold text-fog underline underline-offset-4 transition hover:text-brand"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#c8ddef] bg-white px-4 py-2.5 text-xs font-bold text-[#0868bd] transition hover:border-[#0868bd] hover:bg-[#e7f1fc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0868bd]"
           >
             내 대본 올리기 (.txt)
           </button>
         </div>
-      </Panel>
+      </div>
 
 
     </div>

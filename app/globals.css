@@ -1,79 +1,111 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-ink: #070b14;
-  --color-ink-2: #0d1524;
-  --color-panel: #111c30;
-  --color-line: #1e2c45;
-  --color-fog: #8ea0bd;
-  --color-mist: #c8d4e6;
-  --color-brand: #3ba6ff;
-  --color-brand-deep: #1a6fd4;
-  --color-safe: #2fbf88;
-  --color-warn: #f5a524;
-  --color-danger: #ff5d5d;
+  --color-ink: #f4f7fb;
+  --color-ink-2: #eef4fb;
+  --color-panel: #ffffff;
+  --color-line: #d6e2ef;
+  --color-fog: #5f738a;
+  --color-mist: #344d68;
+  --color-heading: #173b72;
+
+  --color-brand: #0868bd;
+  --color-brand-deep: #07589f;
+
+  --color-safe: #16805d;
+  --color-warn: #966000;
+  --color-danger: #c73545;
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+
+/* -------------------------------------------------
+   기본 화면
+------------------------------------------------- */
+
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  background:
-    radial-gradient(900px 520px at 12% -8%, rgba(59, 166, 255, 0.14), transparent 60%),
-    radial-gradient(760px 460px at 92% 4%, rgba(47, 191, 136, 0.09), transparent 62%),
-    #070b14;
-  color: #e8eefb;
+  background: #f4f7fb;
+  color: #24364b;
+
   -webkit-font-smoothing: antialiased;
+
   /*
-   * 한글은 기본 규칙으로는 단어 중간에서도 줄이 끊긴다 ("자산검수" → "자산검 / 수").
-   * 좁은 폭에서 특히 눈에 띄므로 어절 단위로만 끊게 한다.
-   * 대신 URL 같은 긴 토큰은 넘치지 않도록 예외를 둔다.
+   * 한글은 단어 중간에서 끊기지 않도록 한다.
+   * URL 같은 긴 문자열은 화면 밖으로 넘치지 않게 한다.
    */
   word-break: keep-all;
   overflow-wrap: break-word;
 }
 
-/* 스크롤바 */
+
+/* -------------------------------------------------
+   스크롤바
+------------------------------------------------- */
+
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #1e2c45;
+  background: #cbd6e2;
   border-radius: 999px;
 }
+
+::-webkit-scrollbar-thumb:hover {
+  background: #acbccd;
+}
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+
+/* -------------------------------------------------
+   기본 등장 애니메이션
+------------------------------------------------- */
 
 @keyframes pb-fade-up {
   from {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: none;
   }
 }
+
 .pb-fade {
   animation: pb-fade-up 0.4s ease both;
 }
+
+
+/* -------------------------------------------------
+   위험 표시 Pulse
+------------------------------------------------- */
 
 @keyframes pb-pulse-ring {
   0% {
     box-shadow: 0 0 0 0 rgba(255, 93, 93, 0.45);
   }
+
   70% {
     box-shadow: 0 0 0 16px rgba(255, 93, 93, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(255, 93, 93, 0);
   }
 }
+
 .pb-pulse {
   animation: pb-pulse-ring 2s infinite;
 }
@@ -85,44 +117,45 @@ body {
   }
 }
 
-/*
- * 큰 글씨 모드 (고령 사용자).
- *
- * 루트 font-size를 키우면 rem 기반 Tailwind 유틸리티가 모두 함께 커진다.
- * 다만 text-[11px] 같은 px 고정 값은 따라오지 않으므로, 화면에서 실제로 쓰는
- * 크기들만 골라 따로 올려 준다.
- */
+
+/* -------------------------------------------------
+   큰 글씨 모드
+------------------------------------------------- */
+
 html[data-large] {
   font-size: 20px;
 }
+
 html[data-large] [class*="text-[10px]"] {
   font-size: 13px;
 }
+
 html[data-large] [class*="text-[11px]"] {
   font-size: 14px;
 }
+
 html[data-large] [class*="text-[12px]"] {
   font-size: 15px;
 }
+
 html[data-large] [class*="text-[13px]"] {
   font-size: 16px;
 }
+
 html[data-large] [class*="text-[15px]"] {
   font-size: 18px;
 }
-/* 큰 글씨에서는 줄 간격도 함께 넓혀야 읽힌다 */
+
 html[data-large] p,
 html[data-large] li {
   line-height: 1.8;
 }
 
-/*
- * 인쇄 / PDF 저장 (신고서 양식).
- *
- * jsPDF 같은 라이브러리로 PDF를 만들려면 한글 폰트를 통째로 임베드해야 해서
- * 번들이 수 MB 늘어난다. 브라우저 인쇄를 쓰면 시스템 한글 폰트를 그대로 쓰고,
- * 사용자는 인쇄 대화상자에서 "PDF로 저장"을 고르면 된다.
- */
+
+/* -------------------------------------------------
+   인쇄 / PDF 저장
+------------------------------------------------- */
+
 @media print {
   @page {
     size: A4;
@@ -136,7 +169,6 @@ html[data-large] li {
     font-size: 11pt;
   }
 
-  /* 화면용 요소는 인쇄하지 않는다 */
   header,
   footer,
   nav,
@@ -151,20 +183,24 @@ html[data-large] li {
   .print-sheet {
     color: #000;
   }
+
   .print-sheet h1 {
     font-size: 17pt;
     margin: 0 0 2mm;
   }
+
   .print-sheet h2 {
     font-size: 12pt;
     margin: 7mm 0 2mm;
     padding-bottom: 1.5mm;
     border-bottom: 1px solid #000;
   }
+
   .print-sheet table {
     width: 100%;
     border-collapse: collapse;
   }
+
   .print-sheet th,
   .print-sheet td {
     border: 1px solid #666;
@@ -173,16 +209,19 @@ html[data-large] li {
     text-align: left;
     vertical-align: top;
   }
+
   .print-sheet th {
     width: 32mm;
     background: #f2f2f2;
     font-weight: 600;
     white-space: nowrap;
   }
+
   .print-sheet li {
     margin-bottom: 1.5mm;
     font-size: 10.5pt;
   }
+
   .print-sheet .note {
     margin-top: 8mm;
     padding-top: 3mm;
@@ -190,103 +229,150 @@ html[data-large] li {
     font-size: 9pt;
     color: #333;
   }
+
   .print-sheet .avoid-break {
     break-inside: avoid;
   }
 }
 
-/* 인쇄 전용 영역은 화면에서 감춘다 */
+
+/* 인쇄 전용 영역 */
+
 .print-only {
   display: none;
 }
 
-/*
- * 기기 프레임 (데스크톱 전용).
- *
- * 이 서비스는 통화 중에 폰에서 쓰는 것인데, 심사와 시연은 대부분 PC에서 이뤄진다.
- * 넓은 화면에 폰용 레이아웃이 늘어지면 무엇을 만든 건지 흐려지므로,
- * 1024px 이상에서만 390px 폭의 기기 안에 넣는다.
- *
- * 실제 휴대폰(좁은 화면)에서는 아래 규칙이 전부 적용되지 않는다. 폰에서는 달라지는 것이 없다.
- */
+
+/* -------------------------------------------------
+   기기 프레임
+------------------------------------------------- */
+
+/* Device chrome is decorative and appears only in the desktop phone preview. */
 .pb-screen {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   min-height: 100dvh;
-  /*
-   * 반응형 기준을 뷰포트가 아니라 이 화면의 폭으로 바꾼다.
-   *
-   * 기기 프레임은 폭만 390px로 좁히지만 미디어 쿼리는 여전히 브라우저 뷰포트(예: 1920px)를
-   * 보기 때문에, sm:/lg: 을 쓰면 프레임 안에서도 데스크톱 레이아웃이 적용돼 글자가 깨진다.
-   * 컨테이너 쿼리로 바꾸면 프레임 안(390px)과 실제 휴대폰(390px)이 똑같이 동작한다.
-   *
-   * 부수 효과: container-type은 fixed 자손의 컨테이닝 블록도 만들어 준다.
-   * 덕분에 도우미봇 오버레이가 프레임 안에 갇히고, 따로 transform 을 걸 필요가 없다.
-   */
   container-type: inline-size;
 }
 
-.pb-indicator {
-  display: none;
-}
+.pb-status-bar, .pb-side-key, .pb-indicator, .pb-frame-toggle { display: none; }
 
-.pb-frame-toggle {
-  display: none;
-}
-
-@media (min-width: 1024px) {
+@media (min-width: 600px) {
   .pb-shell[data-framed] {
     display: grid;
     place-items: center;
     min-height: 100vh;
-    padding: 2rem 1rem;
-    /* 기기가 배경에서 떠 보이도록 페이지 쪽은 더 어둡게 깐다 */
-    background: radial-gradient(1200px 700px at 50% 0%, #0d1524, #05070d 70%);
+    padding: 24px;
+    background: radial-gradient(ellipse at 50% 25%, #ffffff 0%, #edf2f7 75%);
   }
 
   .pb-shell[data-framed] .pb-device {
     position: relative;
+    box-sizing: border-box;
     width: 390px;
-    height: min(844px, calc(100vh - 4rem));
-    border-radius: 2.75rem;
-    box-shadow:
-      0 0 0 10px #0a1120,
-      0 0 0 11px #24334d,
-      0 30px 70px -18px rgba(0, 0, 0, 0.85);
+    height: min(844px, calc(100dvh - 48px));
+    min-height: 420px;
+    padding: 9px;
+    border: 2px solid #8c8d88;
+    border-radius: 52px;
+    background: #101112;
+    box-shadow: 0 0 0 1px #444642, inset 0 0 0 2px #292b29,
+      inset 0 0 0 3px #070808, 0 24px 48px -16px rgba(22, 34, 47, 0.3),
+      0 4px 8px rgba(22, 34, 47, 0.12);
   }
 
-  .pb-shell[data-framed] .pb-screen {
+  .pb-shell[data-framed] .pb-display {
+    position: relative;
     height: 100%;
+    overflow: hidden;
+    border-radius: 40px;
+    background: #fff;
+    isolation: isolate;
+  }
+  .pb-shell[data-framed] .pb-status-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    height: 44px;
+    padding: 0 24px;
+    border-radius: 40px 40px 0 0;
+    background: #fff;
+    color: #131a24;
+    pointer-events: none;
+    user-select: none;
+  }
+  .pb-status-time { font: 600 12px/1 Arial, sans-serif; letter-spacing: -0.2px; }
+  .pb-camera-island {
+    position: absolute;
+    top: 9px;
+    left: 50%;
+    width: 96px;
+    height: 26px;
+    transform: translateX(-50%);
+    border-radius: 20px;
+    background: #050606;
+    box-shadow: inset 0 0 2px #282b30;
+  }
+  .pb-camera-island > span {
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    width: 10px;
+    height: 10px;
+    border: 2px solid #11171d;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #213f69, #0b1422 45%, #05070a 75%);
+  }
+  .pb-shell[data-framed] .pb-screen {
+    box-sizing: border-box;
+    width: 100%;
+    height: calc(100% - 64px);
     min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    border-radius: 2.75rem;
-    /* body의 그러데이션이 프레임 바깥에 있으므로 화면 안쪽을 따로 칠한다 */
-    background:
-      radial-gradient(900px 520px at 12% -8%, rgba(59, 166, 255, 0.14), transparent 60%),
-      radial-gradient(760px 460px at 92% 4%, rgba(47, 191, 136, 0.09), transparent 62%),
-      #070b14;
-    padding-bottom: 1.5rem;
+    background: #f4f7fb;
     scrollbar-width: none;
+    overscroll-behavior: contain;
   }
-  .pb-shell[data-framed] .pb-screen::-webkit-scrollbar {
-    display: none;
+  .pb-shell[data-framed] .pb-screen::-webkit-scrollbar { display: none; }
+  .pb-shell[data-framed] .pb-display::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 20px;
+    border-radius: 0 0 40px 40px;
+    background: #fff;
+    pointer-events: none;
   }
-
   .pb-shell[data-framed] .pb-indicator {
     display: block;
     position: absolute;
-    bottom: 9px;
+    bottom: 7px;
     left: 50%;
-    width: 130px;
-    height: 5px;
+    width: 116px;
+    height: 4px;
     transform: translateX(-50%);
     border-radius: 999px;
-    background: rgba(232, 238, 251, 0.32);
+    background: #16181b;
+    z-index: 1;
     pointer-events: none;
   }
-
+  .pb-shell[data-framed] .pb-side-key {
+    display: block;
+    position: absolute;
+    width: 3px;
+    background: linear-gradient(90deg, #4a4d48, #9c9e96, #464942);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .pb-side-key-left { left: -5px; top: 142px; height: 48px; box-shadow: 0 60px 0 #666963; }
+  .pb-side-key-left::before { content: ""; position: absolute; top: -46px; width: 3px; height: 24px; border-radius: 2px; background: #666963; }
+  .pb-side-key-right { right: -5px; top: 181px; height: 73px; }
   .pb-frame-toggle {
     display: inline-flex;
     position: fixed;
@@ -294,40 +380,51 @@ html[data-large] li {
     bottom: 1.25rem;
     z-index: 50;
     cursor: pointer;
-    border: 1px solid #1e2c45;
+    border: 1px solid #d3deea;
     border-radius: 999px;
-    background: rgba(13, 21, 36, 0.9);
+    background: rgba(255,255,255,0.94);
     padding: 0.55rem 1rem;
     font-size: 12px;
-    font-weight: 600;
-    color: #c8d4e6;
+    font-weight: 700;
+    color: #315276;
+    box-shadow: 0 6px 20px rgba(25,55,85,0.08);
     backdrop-filter: blur(8px);
   }
-  .pb-frame-toggle:hover {
-    border-color: #3ba6ff;
-    color: #fff;
-  }
-  .pb-frame-toggle:focus-visible {
-    outline: 2px solid #3ba6ff;
-    outline-offset: 2px;
-  }
+  .pb-frame-toggle:hover { border-color: #0868bd; color: #0868bd; }
+  .pb-frame-toggle:focus-visible { outline: 2px solid #0868bd; outline-offset: 2px; }
 }
 
+@media print {
+  .pb-status-bar, .pb-side-key, .pb-display::after { display: none !important; }
+  .pb-shell[data-framed] .pb-display { height: auto; overflow: visible; border-radius: 0; }
+  .pb-shell[data-framed] .pb-device { padding: 0 !important; min-height: 0 !important; background: transparent !important; }
+}
+
+
+/* -------------------------------------------------
+   도우미봇 개입 화면
+------------------------------------------------- */
+
 /*
- * 도우미봇 개입 화면.
- *
- * 개입은 무시할 수 있는 알림이 아니라 다음 행동을 막는 것이어야 의미가 있다.
- * 그래서 화면을 덮고, 열려 있는 동안에는 스크롤도 잠근다.
+ * 위험 상황에서는 일반 페이지와 구분되도록
+ * 밝은 카드와 위험도별 강조색으로 긴급 개입 UI를 표시한다.
  */
+
 .pb-guard {
   position: fixed;
   inset: 0;
+
   z-index: 100;
+
   display: grid;
   place-items: center;
+
   padding: 1rem;
-  background: rgba(3, 6, 12, 0.86);
+
+  background: rgba(222, 234, 247, 0.88);
+
   backdrop-filter: blur(6px);
+
   animation: pb-guard-in 0.25s ease both;
 }
 
@@ -335,32 +432,53 @@ html[data-large] li {
   width: 100%;
   max-width: 26rem;
   max-height: 100%;
+
   overflow-y: auto;
-  border: 1px solid #1e2c45;
+
+  border: 1px solid #d6e2ef;
   border-radius: 1.25rem;
-  background: linear-gradient(180deg, #111c30, #0b1322);
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #f0f7ff
+    );
+
   padding: 1.25rem;
-  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.85);
-  animation: pb-panel-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+
+  box-shadow:
+    0 24px 60px -12px rgba(25, 55, 85, 0.16);
+
+  animation:
+    pb-panel-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
 }
+
 .pb-guard-panel:focus {
   outline: none;
 }
 
-/* 잠금 중에는 본문도, 기기 프레임 안쪽도 함께 멈춘다 */
+
+/* 잠금 상태 */
+
 html[data-locked] body,
 html[data-locked] .pb-screen {
   overflow: hidden;
 }
 
-/* ---------- 도우미 캐릭터 ---------- */
+
+/* -------------------------------------------------
+   도우미 캐릭터
+------------------------------------------------- */
 
 .pb-char {
-  --ch: #3ba6ff;
+  --ch: #0868bd;
+
   animation:
     pb-char-in 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.3) both,
     pb-char-float 4.5s ease-in-out 0.5s infinite;
 }
+
 .pb-char.is-alert {
   --ch: #ff5d5d;
 }
@@ -368,163 +486,242 @@ html[data-locked] .pb-screen {
 .pb-char-halo {
   fill: var(--ch);
   opacity: 0.09;
-  animation: pb-char-halo 3.2s ease-in-out infinite;
+
+  animation:
+    pb-char-halo 3.2s ease-in-out infinite;
 }
+
 .pb-char-stroke {
   stroke: var(--ch);
   fill: none;
 }
+
 .pb-char-ear {
   fill: var(--ch);
   opacity: 0.5;
 }
+
 .pb-char-led {
   fill: var(--ch);
-  animation: pb-char-led 1.8s ease-in-out infinite;
+
+  animation:
+    pb-char-led 1.8s ease-in-out infinite;
 }
+
 .pb-char-eye {
   fill: var(--ch);
+
   transform-box: fill-box;
   transform-origin: center;
-  animation: pb-char-blink 4.2s infinite;
+
+  animation:
+    pb-char-blink 4.2s infinite;
 }
-/* 걱정스러운 눈썹은 위험도가 높을 때만 */
+
+
+/* 걱정스러운 눈썹 */
+
 .pb-char-brows {
   stroke: var(--ch);
+
   opacity: 0;
+
   transition: opacity 0.4s ease;
 }
+
 .pb-char.is-alert .pb-char-brows {
   opacity: 0.8;
 }
+
 .pb-char-mouth {
   fill: var(--ch);
+
   transform-box: fill-box;
   transform-origin: center;
+
   transform: scaleY(0.35);
 }
+
 .pb-char.is-talking .pb-char-mouth {
-  animation: pb-char-talk 0.34s ease-in-out infinite;
+  animation:
+    pb-char-talk 0.34s ease-in-out infinite;
 }
 
-/* ---------- 말풍선 ---------- */
+
+/* -------------------------------------------------
+   말풍선
+------------------------------------------------- */
 
 .pb-bubble {
   position: relative;
+
   display: block;
+
   width: 100%;
+
   margin-top: 0.85rem;
+
   cursor: pointer;
-  border: 1px solid #24334d;
+
+  border: 1px solid #c8ddef;
   border-radius: 1rem;
-  background: #0d1524;
+
+  background: #eef4fb;
+
   padding: 0.95rem 1.1rem;
+
   text-align: center;
+
   min-height: 5.25rem;
 }
-/* 캐릭터 쪽을 가리키는 꼬리 */
+
+
+/* 말풍선 꼬리 */
+
 .pb-bubble::before {
   content: "";
+
   position: absolute;
+
   top: -9px;
   left: 50%;
+
   margin-left: -9px;
+
   border-left: 9px solid transparent;
   border-right: 9px solid transparent;
-  border-bottom: 9px solid #24334d;
+  border-bottom: 9px solid #c8ddef;
 }
+
 .pb-bubble::after {
   content: "";
+
   position: absolute;
+
   top: -7px;
   left: 50%;
+
   margin-left: -8px;
+
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
-  border-bottom: 8px solid #0d1524;
+  border-bottom: 8px solid #eef4fb;
 }
+
 .pb-bubble:focus-visible {
-  outline: 2px solid #3ba6ff;
+  outline: 2px solid #0868bd;
   outline-offset: 2px;
 }
+
 .pb-bubble-text {
   font-size: 15px;
   font-weight: 600;
+
   line-height: 1.7;
-  color: #ffffff;
+
+  color: #173b72;
+
   word-break: keep-all;
 }
+
 .pb-caret {
   display: inline-block;
+
   width: 2px;
   height: 1em;
+
   margin-left: 2px;
+
   vertical-align: -0.15em;
-  background: #3ba6ff;
-  animation: pb-caret 0.9s step-end infinite;
+
+  background: #0868bd;
+
+  animation:
+    pb-caret 0.9s step-end infinite;
 }
+
+
+/* -------------------------------------------------
+   캐릭터 애니메이션
+------------------------------------------------- */
 
 @keyframes pb-char-in {
   from {
     opacity: 0;
-    transform: translateY(14px) scale(0.86);
+
+    transform:
+      translateY(14px)
+      scale(0.86);
   }
+
   to {
     opacity: 1;
     transform: none;
   }
 }
+
 @keyframes pb-char-float {
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-5px);
   }
 }
+
 @keyframes pb-char-halo {
   0%,
   100% {
     opacity: 0.07;
   }
+
   50% {
     opacity: 0.16;
   }
 }
+
 @keyframes pb-char-led {
   0%,
   100% {
     opacity: 0.45;
   }
+
   50% {
     opacity: 1;
   }
 }
+
 @keyframes pb-char-blink {
   0%,
   92%,
   100% {
     transform: scaleY(1);
   }
+
   96% {
     transform: scaleY(0.12);
   }
 }
+
 @keyframes pb-char-talk {
   0%,
   100% {
     transform: scaleY(0.35);
   }
+
   50% {
     transform: scaleY(1.15);
   }
 }
+
 @keyframes pb-caret {
   0%,
   50% {
     opacity: 1;
   }
+
   51%,
   100% {
     opacity: 0;
@@ -535,20 +732,32 @@ html[data-locked] .pb-screen {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
+
 @keyframes pb-panel-in {
   from {
     opacity: 0;
-    transform: translateY(14px) scale(0.97);
+
+    transform:
+      translateY(14px)
+      scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: none;
   }
 }
+
+
+/* -------------------------------------------------
+   모션 감소 설정
+------------------------------------------------- */
+
 @media (prefers-reduced-motion: reduce) {
   .pb-guard,
   .pb-guard-panel,
@@ -560,33 +769,50 @@ html[data-locked] .pb-screen {
   .pb-caret {
     animation: none;
   }
-  /* 입이 멈춘 채로 굳어 보이지 않도록 살짝 벌린 상태로 둔다 */
+
   .pb-char.is-talking .pb-char-mouth {
     transform: scaleY(0.8);
   }
 }
 
-/* 인쇄할 때는 기기 껍데기를 걷어낸다. 신고서가 프레임 안에서 잘리면 안 된다. */
+
+/* -------------------------------------------------
+   인쇄 시 휴대폰 프레임 제거
+------------------------------------------------- */
+
 @media print {
   .pb-shell[data-framed] {
     display: block !important;
+
     min-height: 0 !important;
+
     padding: 0 !important;
+
     background: none !important;
   }
+
   .pb-shell[data-framed] .pb-device {
     width: auto !important;
     height: auto !important;
+
+    border: 0 !important;
     border-radius: 0 !important;
+
     box-shadow: none !important;
   }
+
   .pb-shell[data-framed] .pb-screen {
     height: auto !important;
+
     overflow: visible !important;
+
     border-radius: 0 !important;
+
     background: none !important;
+
     padding-bottom: 0 !important;
   }
+
   .pb-frame-toggle,
   .pb-indicator,
   .pb-guard {

@@ -76,14 +76,14 @@ export default function ReplyPage({ params }: { params: Promise<{ token: string 
     return (
       <div className="mx-auto max-w-lg px-5 py-16">
         <Panel className="p-6">
-          <h1 className="text-lg font-bold text-white">요청이 만료되었습니다</h1>
+          <h1 className="text-lg font-bold text-heading">요청이 만료되었습니다</h1>
           <p className="mt-2 text-[13px] leading-relaxed text-mist">
             확인 요청이 만료되었거나 이미 처리되었습니다. 가족분에게 직접 전화해 통화를 끊도록
             도와주세요.
           </p>
           <p className="mt-4 text-[13px] leading-relaxed text-fog">
-            피해가 발생했다면 즉시 <strong className="text-white">112</strong> 또는{" "}
-            <strong className="text-white">1332</strong>로 신고하시기 바랍니다.
+            피해가 발생했다면 즉시 <strong className="text-heading">112</strong> 또는{" "}
+            <strong className="text-heading">1332</strong>로 신고하시기 바랍니다.
           </p>
         </Panel>
       </div>
@@ -97,7 +97,7 @@ export default function ReplyPage({ params }: { params: Promise<{ token: string 
       <p className="mb-2 text-[11px] font-bold tracking-widest text-brand uppercase">
         피싱브레이크 · 확인 요청
       </p>
-      <h1 className="text-xl leading-snug font-bold text-white">
+      <h1 className="text-xl leading-snug font-bold text-heading">
         {who ? `${who}님,` : "안녕하세요,"} 가족분이 지금 보이스피싱 의심 통화를 받고 있습니다
       </h1>
       <p className="mt-2.5 text-[13px] leading-relaxed text-mist">
@@ -123,8 +123,8 @@ export default function ReplyPage({ params }: { params: Promise<{ token: string 
               : "가족분 화면에 '본인이 연락한 것이 맞다'는 답이 표시되었습니다. 그래도 당사자가 직접 목소리를 확인하도록 안내됩니다."}
           </p>
           <p className="mt-4 text-[13px] leading-relaxed text-fog">
-            피해가 발생했다면 즉시 <strong className="text-white">112</strong> 또는{" "}
-            <strong className="text-white">1332</strong>로 신고하시기 바랍니다.
+            피해가 발생했다면 즉시 <strong className="text-heading">112</strong> 또는{" "}
+            <strong className="text-heading">1332</strong>로 신고하시기 바랍니다.
           </p>
         </Panel>
       ) : (
@@ -137,7 +137,7 @@ export default function ReplyPage({ params }: { params: Promise<{ token: string 
               onClick={() => void send(o.value)}
               className="rounded-2xl border border-line bg-panel px-5 py-4 text-left transition hover:border-brand/50 hover:bg-brand/10 disabled:opacity-50"
             >
-              <span className="block text-[15px] font-bold text-white">{o.label}</span>
+              <span className="block text-[15px] font-bold text-heading">{o.label}</span>
               <span className="mt-1 block text-[13px] leading-relaxed text-fog">{o.hint}</span>
             </button>
           ))}

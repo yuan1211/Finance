@@ -10,7 +10,7 @@ export function Panel({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-line/80 bg-panel/60 backdrop-blur-sm shadow-[0_1px_0_0_rgba(255,255,255,0.04)_inset] ${className}`}
+      className={`rounded-2xl border border-line bg-panel shadow-[0_6px_24px_rgba(25,55,85,0.06)] ${className}`}
     >
       {children}
     </div>
@@ -33,7 +33,7 @@ export function SectionTitle({
           {eyebrow}
         </p>
       )}
-      <h1 className="text-lg font-bold tracking-tight text-white @md:text-3xl">{title}</h1>
+      <h1 className="text-lg font-bold tracking-tight text-heading @md:text-3xl">{title}</h1>
       {desc && <p className="mt-1.5 text-[13px] leading-relaxed text-fog @md:mt-2 @md:text-sm">{desc}</p>}
     </div>
   );
@@ -97,9 +97,9 @@ export function PrimaryButton({
     brand:
       "bg-gradient-to-b from-brand to-brand-deep text-white shadow-lg shadow-brand-deep/25 hover:brightness-110",
     danger: "bg-gradient-to-b from-danger to-[#c93b3b] text-white shadow-lg shadow-danger/20 hover:brightness-110",
-    ghost: "border border-line bg-ink-2/60 text-mist hover:border-brand/50 hover:text-white",
+    ghost: "border border-line bg-white text-heading hover:border-brand/50 hover:bg-ink-2 hover:text-brand",
   };
-  const cls = `inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-45 ${tones[tone]} ${className}`;
+  const cls = `inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-45 ${tones[tone]} ${className}`;
 
   if (href && !disabled) {
     return (
@@ -204,14 +204,25 @@ export function ScoreBreakdownCard({
 
 export function MvpNotice({ className = "" }: { className?: string }) {
   return (
-    <p
-      className={`rounded-xl border border-line/70 bg-ink-2/50 px-4 py-3 text-xs leading-relaxed text-fog ${className}`}
+    <div
+      className={[
+        "rounded-[18px] border border-[#d9e3ee] bg-[#eef4fb] px-5 py-4",
+        "text-sm leading-relaxed text-[#5f738a]",
+        className,
+      ].join(" ")}
     >
-      <span className="font-semibold text-mist">MVP 안내</span> · 신고 이력과 기관 번호는 가상 데이터이며,
-      입력 내용은 서버에 저장되지 않습니다.
-    </p>
+      <p className="font-semibold text-[#315276]">
+        MVP 안내
+      </p>
+
+      <p className="mt-1">
+        신고 이력과 기관 번호는 가상 데이터이며, 입력 내용은 서버에 저장되지
+        않습니다.
+      </p>
+    </div>
   );
 }
+
 
 export function EngineBadge({ engine }: { engine: "claude" | "fallback" }) {
   return engine === "claude" ? (
@@ -226,5 +237,5 @@ export function EngineBadge({ engine }: { engine: "claude" | "fallback" }) {
 }
 
 export function Spinner() {
-  return <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />;
+  return <span className="h-4 w-4 animate-spin rounded-full border-2 border-current/30 border-t-current" />;
 }

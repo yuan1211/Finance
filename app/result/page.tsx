@@ -68,7 +68,7 @@ export default function ResultPage() {
         <Panel className="mb-5 p-4 @md:p-6">
           <div className="mb-2 flex items-baseline justify-between">
             <span className="text-sm font-semibold text-mist">종합 위험 점수</span>
-            <span className="font-mono text-2xl font-bold text-white">
+            <span className="font-mono text-2xl font-bold text-heading">
               {analysis.riskScore}
               <span className="ml-0.5 text-sm text-fog">/100</span>
             </span>
@@ -92,7 +92,7 @@ export default function ResultPage() {
           <p className="mb-1.5 text-[11px] font-bold tracking-widest text-brand uppercase">
             AI 금융 중재자
           </p>
-          <p className="text-[15px] leading-relaxed text-white">{analysis.calmMessage}</p>
+          <p className="text-[15px] leading-relaxed text-heading">{analysis.calmMessage}</p>
         </Panel>
 
         {/* 한눈에 보기 — 길게 읽기 어려운 분을 위해 결론만 세 줄로 */}
@@ -113,7 +113,7 @@ export default function ResultPage() {
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand/15 font-mono text-[11px] font-bold text-brand">
                   {i + 1}
                 </span>
-                <span className="text-[15px] leading-relaxed font-semibold text-white">{line}</span>
+                <span className="text-[15px] leading-relaxed font-semibold text-heading">{line}</span>
               </li>
             ))}
           </ol>
@@ -121,7 +121,7 @@ export default function ResultPage() {
 
         {/* 판단 근거 */}
         <Panel className="mb-5 p-4 @md:p-6">
-          <h2 className="mb-3 text-sm font-bold text-white">이렇게 판단했습니다</h2>
+          <h2 className="mb-3 text-sm font-bold text-heading">이렇게 판단했습니다</h2>
           <p className="text-sm leading-relaxed text-mist">{analysis.reasoning}</p>
 
           {analysis.detectedSignals.length > 0 && (
@@ -179,7 +179,7 @@ export default function ResultPage() {
           </PrimaryButton>
           <Link
             href="/live"
-            className="self-center text-xs font-semibold text-fog underline underline-offset-4 hover:text-white"
+            className="self-center text-xs font-semibold text-fog underline underline-offset-4 hover:text-heading"
           >
             다시 감지하기
           </Link>

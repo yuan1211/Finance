@@ -149,17 +149,17 @@ export default function FollowUpPage() {
         <div className="space-y-5 pb-fade print-hide">
           <Panel className="border-brand/25 bg-brand/[0.06] p-4 @md:p-5">
             <p className="mb-1.5 text-[11px] font-bold tracking-widest text-brand uppercase">종합 요약</p>
-            <p className="text-[15px] leading-relaxed text-white">{report.summary}</p>
+            <p className="text-[15px] leading-relaxed text-heading">{report.summary}</p>
           </Panel>
 
           <Panel className="p-4 @md:p-6">
-            <h2 className="mb-4 text-sm font-bold text-white">상황 타임라인</h2>
+            <h2 className="mb-4 text-sm font-bold text-heading">상황 타임라인</h2>
             <ol className="relative space-y-5 border-l border-line pl-6">
               {report.timeline.map((t, i) => (
                 <li key={i} className="relative">
                   <span className="absolute -left-[29px] top-1 h-2.5 w-2.5 rounded-full bg-brand ring-4 ring-brand/15" />
                   <p className="font-mono text-[11px] font-semibold text-brand">{t.time}</p>
-                  <p className="text-sm font-bold text-white">{t.title}</p>
+                  <p className="text-sm font-bold text-heading">{t.title}</p>
                   <p className="mt-0.5 text-[13px] leading-relaxed text-mist">{t.detail}</p>
                 </li>
               ))}
@@ -167,7 +167,7 @@ export default function FollowUpPage() {
           </Panel>
 
           <Panel className="p-4 @md:p-6">
-            <h2 className="mb-3 text-sm font-bold text-white">신고 시 필요한 사실관계</h2>
+            <h2 className="mb-3 text-sm font-bold text-heading">신고 시 필요한 사실관계</h2>
             <ul className="space-y-2">
               {report.facts.map((f, i) => (
                 <li key={i} className="flex gap-2.5 text-[13px] leading-relaxed text-mist">
@@ -179,11 +179,11 @@ export default function FollowUpPage() {
           </Panel>
 
           <Panel className="p-4 @md:p-6">
-            <h2 className="mb-4 text-sm font-bold text-white">지금부터 해야 할 일</h2>
+            <h2 className="mb-4 text-sm font-bold text-heading">지금부터 해야 할 일</h2>
             <ol className="space-y-3">
               {report.actions.map((a, i) => (
                 <li key={i} className="rounded-xl border border-line/70 bg-ink/50 p-4">
-                  <p className="mb-1 text-sm font-bold text-white">
+                  <p className="mb-1 text-sm font-bold text-heading">
                     <span className="mr-2 font-mono text-xs text-brand">
                       {String(i + 1).padStart(2, "0")}
                     </span>
@@ -196,7 +196,7 @@ export default function FollowUpPage() {
           </Panel>
 
           <Panel className="p-4 @md:p-6">
-            <h2 className="mb-4 text-sm font-bold text-white">신고·상담 창구 연결</h2>
+            <h2 className="mb-4 text-sm font-bold text-heading">신고·상담 창구 연결</h2>
             <div className="grid gap-3 @md:grid-cols-3">
               {HELPLINES.map((h) => (
                 <a
@@ -204,7 +204,7 @@ export default function FollowUpPage() {
                   href={`tel:${h.number}`}
                   className="rounded-xl border border-line bg-ink/60 p-4 transition hover:border-brand/50"
                 >
-                  <p className="font-mono text-xl font-black text-white">{h.number}</p>
+                  <p className="font-mono text-xl font-black text-heading">{h.number}</p>
                   <p className="mt-0.5 text-xs font-bold text-brand">{h.name}</p>
                   <p className="mt-1 text-[11px] leading-relaxed text-fog">{h.desc}</p>
                 </a>

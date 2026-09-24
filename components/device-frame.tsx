@@ -62,8 +62,27 @@ export function DeviceFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="pb-shell" data-framed={framedNow ? "" : undefined}>
       <div className="pb-device">
+        <span className="pb-side-key pb-side-key-left" aria-hidden />
+        <span className="pb-side-key pb-side-key-right" aria-hidden />
+        <div className="pb-display">
+        <div className="pb-status-bar" aria-hidden>
+          <span className="pb-status-time">9:41</span>
+          <span className="pb-camera-island"><span /></span>
+          <svg className="pb-status-icons" width="60" height="14" viewBox="0 0 60 14" fill="currentColor">
+            <rect x="0" y="9" width="3" height="4" rx="0.7" />
+            <rect x="5" y="6" width="3" height="7" rx="0.7" />
+            <rect x="10" y="3" width="3" height="10" rx="0.7" />
+            <rect x="15" width="3" height="13" rx="0.7" />
+            <path d="M23 5 Q30 -1 37 5 M26 8 Q30 4 34 8" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+            <circle cx="30" cy="11" r="1.4" />
+            <rect x="42" y="2" width="15" height="10" rx="2" fill="none" stroke="currentColor" strokeWidth="1" />
+            <rect x="44" y="4" width="11" height="6" rx="1" />
+            <rect x="58" y="5" width="2" height="4" rx="0.7" />
+          </svg>
+        </div>
         <div className="pb-screen">{children}</div>
         <span className="pb-indicator" aria-hidden />
+        </div>
       </div>
 
       {/* 프레임은 큰 화면에서만 의미가 있어, 토글도 CSS로 거기서만 보이게 한다 */}

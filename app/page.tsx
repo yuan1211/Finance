@@ -32,10 +32,10 @@ export default function Home() {
             {/* 버튼 */}
             <div className="mt-8 flex flex-col gap-3 @md:flex-row">
               <Link
-                href="/live"
+                href="/call-demo"
                 className="inline-flex items-center justify-center rounded-xl bg-[#0868bd] px-7 py-4 text-base font-bold text-white shadow-sm transition hover:bg-[#07589f]"
               >
-                실시간 감지 시작
+                전화 수신 시연 시작
               </Link>
 
               <Link

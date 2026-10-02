@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { usePathname } from "next/navigation";
 
 /**
  * 데스크톱에서 앱을 휴대폰 화면처럼 보여 주는 껍데기.
@@ -58,9 +59,10 @@ function setFramed(next: boolean) {
 
 export function DeviceFrame({ children }: { children: React.ReactNode }) {
   const framedNow = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const pathname = usePathname();
 
   return (
-    <div className="pb-shell" data-framed={framedNow ? "" : undefined}>
+    <div className="pb-shell" data-framed={framedNow ? "" : undefined} data-call-demo={pathname === "/call-demo" ? "" : undefined}>
       <div className="pb-device">
         <span className="pb-side-key pb-side-key-left" aria-hidden />
         <span className="pb-side-key pb-side-key-right" aria-hidden />

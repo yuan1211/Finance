@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+.pb-shell[data-call-demo] .pb-screen > header,
+.pb-shell[data-call-demo] .pb-screen > footer { display: none; }
+.pb-shell[data-call-demo] .pb-screen > main { flex: none; height: 100%; min-height: 100dvh; }
+@media (min-width: 600px) {
+  .pb-shell[data-framed][data-call-demo] .pb-screen > main { min-height: 100%; }
+}
+
 @theme inline {
   --color-ink: #f4f7fb;
   --color-ink-2: #eef4fb;

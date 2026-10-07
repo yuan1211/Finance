@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { MvpNotice } from "@/components/ui";
+
 
 export default function Home() {
   return (
-    <div className="mx-auto max-w-5xl px-4 pt-6 pb-5 @md:px-5 @md:pt-10 @md:pb-8">
+    <div className="pb-home mx-auto max-w-5xl px-4 pt-6 pb-5 @md:px-5 @md:pt-10 @md:pb-8">
       <div className="pb-fade">
         {/* 메인 카드 */}
         <section className="rounded-[26px] border border-[#e1e8f0] bg-white px-6 py-8 shadow-[0_10px_35px_rgba(25,55,85,0.07)] @md:px-10 @md:py-11">
@@ -30,19 +30,19 @@ export default function Home() {
             </p>
 
             {/* 버튼 */}
-            <div className="mt-8 flex flex-col gap-3 @md:flex-row">
+            <div className="mt-8 flex flex-col gap-3">
               <Link
                 href="/call-demo"
                 className="inline-flex items-center justify-center rounded-xl bg-[#0868bd] px-7 py-4 text-base font-bold text-white shadow-sm transition hover:bg-[#07589f]"
               >
-                전화 수신 시연 시작
+                전화 받기 시작
               </Link>
 
               <Link
-                href="/contacts"
+                href="/call-demo/settings"
                 className="inline-flex items-center justify-center rounded-xl border border-[#ccd8e5] bg-white px-7 py-4 text-base font-bold text-[#36516e] transition hover:border-[#adc4d9] hover:bg-[#f6f9fc]"
               >
-                비상연락처 등록
+                가족·생활패턴 등록
               </Link>
             </div>
 
@@ -69,8 +69,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* MVP 안내 */}
-        <MvpNotice className="mt-5" />
+        
+        
       </div>
     </div>
   );

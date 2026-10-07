@@ -393,8 +393,7 @@ export function NonverbalPanel({ signals }: { signals: NonverbalSignals | null }
       <div>
         <p className="text-[11px] font-bold tracking-[0.18em] text-fog uppercase">말투 신호</p>
         <p className="mt-2 text-[13px] leading-relaxed text-fog">
-          마이크로 통화를 듣는 동안 말 빠르기와 쉼을 함께 측정합니다. 데모 모드에서는 실제 소리가 없어
-          측정되지 않습니다.
+          마이크로 통화를 듣는 동안 말 빠르기와 쉼을 함께 측정합니다.
         </p>
       </div>
     );

@@ -68,10 +68,10 @@ const FATAL_MESSAGE: Record<SpeechFatalReason, string> = {
   permission:
     "마이크 사용이 차단되어 있습니다. 주소창 왼쪽 자물쇠 아이콘에서 마이크를 '허용'으로 바꾼 뒤 다시 시도해 주세요.",
   "no-microphone": "마이크를 찾을 수 없습니다. 기기에 마이크가 연결되어 있는지 확인해 주세요.",
-  network: "음성 인식 서버에 연결하지 못했습니다. 네트워크를 확인하거나 아래 데모 모드를 이용해 주세요.",
+  network: "음성 인식 서버에 연결하지 못했습니다. 네트워크를 확인하거나 아래 통화 상황을 선택해 주세요.",
   unsupported:
-    "이 브라우저는 실시간 음성 인식을 지원하지 않습니다. Chrome 계열 브라우저를 쓰시거나 아래 데모 모드를 이용해 주세요.",
-  unknown: "음성 인식이 중단되었습니다. 다시 시도하거나 데모 모드를 이용해 주세요.",
+    "이 브라우저는 실시간 음성 인식을 지원하지 않습니다. Chrome 계열 브라우저를 쓰시거나 아래 통화 상황을 선택해 주세요.",
+  unknown: "음성 인식이 중단되었습니다. 다시 시도하거나 통화 상황을 선택해 주세요.",
 };
 
 export function speechFatalMessage(reason: SpeechFatalReason): string {

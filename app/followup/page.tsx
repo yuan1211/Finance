@@ -89,7 +89,7 @@ export default function FollowUpPage() {
       "[신고 창구]",
       ...HELPLINES.map((h) => `- ${h.name} ${h.number} (${h.desc})`),
       "",
-      "※ 본 리포트는 피싱브레이크 MVP 시뮬레이션 결과이며, 법적 효력이 있는 문서가 아닙니다.",
+      "피싱브레이크 통화 분석 참고 자료입니다.",
     ];
     const blob = new Blob([lines.join("\n")], {
       type: "text/plain;charset=utf-8",
@@ -243,7 +243,7 @@ export default function FollowUpPage() {
         </div>
       )}
 
-      <MvpNotice className="print-hide mt-4" />
+      <MvpNotice />
 
       {report && (
         <ReportSheet
@@ -367,8 +367,7 @@ function ReportSheet({
 
       <p className="note">
         본 문서는 피싱브레이크가 사용자의 진술과 AI 분석을 바탕으로 자동 정리한 참고 자료이며, 법적 효력이
-        있는 공문서가 아닙니다. 문서에 포함된 신고 이력·기관 대표번호 조회 결과는 데모용 가상 데이터를 대조한
-        것입니다. 실제 신고는 112(경찰) 또는 1332(금융감독원)를 통해 접수해 주시기 바랍니다.
+        있는 공문서가 아닙니다. 실제 신고는 112(경찰) 또는 1332(금융감독원)를 통해 접수해 주시기 바랍니다.
       </p>
     </section>
   );

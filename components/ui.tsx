@@ -202,27 +202,7 @@ export function ScoreBreakdownCard({
   );
 }
 
-export function MvpNotice({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={[
-        "rounded-[18px] border border-[#d9e3ee] bg-[#eef4fb] px-5 py-4",
-        "text-sm leading-relaxed text-[#5f738a]",
-        className,
-      ].join(" ")}
-    >
-      <p className="font-semibold text-[#315276]">
-        MVP 안내
-      </p>
-
-      <p className="mt-1">
-        신고 이력과 기관 번호는 가상 데이터이며, 입력 내용은 서버에 저장되지
-        않습니다.
-      </p>
-    </div>
-  );
-}
-
+export function MvpNotice() { return null; }
 
 export function EngineBadge({ engine }: { engine: "claude" | "fallback" }) {
   return engine === "claude" ? (

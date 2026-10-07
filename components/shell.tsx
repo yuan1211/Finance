@@ -64,7 +64,7 @@ export function Header() {
               ? "상태 확인 중"
               : llm
                 ? "Claude 연동됨"
-                : "룰 기반 데모"}
+                : "기본 분석"}
           </span>
 
           {/* 큰 글씨 */}
@@ -166,23 +166,4 @@ export function FlowSteps() {
   );
 }
 
-export function Footer() {
-  return (
-    <footer className="mt-16 border-t border-[#dce5ef] bg-white py-8">
-      <div className="mx-auto max-w-5xl px-5 text-xs leading-relaxed text-[#74869b]">
-        <p>
-          본 서비스는 시뮬레이션 데모입니다. 실제 피해가 발생했거나
-          발생이 의심되면 즉시{" "}
-          <span className="font-bold text-[#0868bd]">112(경찰)</span> 또는{" "}
-          <span className="font-bold text-[#0868bd]">1332(금융감독원)</span>
-          로 신고하세요.
-        </p>
-
-        <p className="mt-2">
-          화면에 표시되는 신고 이력·계좌·전화번호는 모두 가상의 샘플
-          데이터이며, 실제 인물이나 기관과 무관합니다.
-        </p>
-      </div>
-    </footer>
-  );
-}
+export function Footer() { return null; }

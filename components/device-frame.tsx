@@ -62,7 +62,7 @@ export function DeviceFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="pb-shell" data-framed={framedNow ? "" : undefined} data-call-demo={pathname === "/call-demo" ? "" : undefined}>
+    <div className="pb-shell" data-framed={framedNow ? "" : undefined} data-home={pathname === "/" ? "" : undefined} data-call-demo={pathname.startsWith("/call-demo") ? "" : undefined}>
       <div className="pb-device">
         <span className="pb-side-key pb-side-key-left" aria-hidden />
         <span className="pb-side-key pb-side-key-right" aria-hidden />

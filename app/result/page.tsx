@@ -185,7 +185,7 @@ export default function ResultPage() {
           </Link>
         </div>
 
-        <MvpNotice className="mt-4" />
+        <MvpNotice />
       </div>
     </div>
   );

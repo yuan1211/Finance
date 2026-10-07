@@ -1,0 +1,31 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const ts = require('typescript');
+const vm = require('node:vm');
+const path = require('node:path');
+const source = fs.readFileSync(path.join(__dirname,'../lib/safety-agent.ts'),'utf8');
+const output = ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
+const mod={exports:{}};
+vm.runInNewContext(output,{module:mod,exports:mod.exports,require,Date,Set,JSON,localStorage:undefined});
+const {sampleProfile,planContacts,usableChannels,advanceAgent,startAgent,assess,observeCare,timeAllowed}=mod.exports;
+const profile=sampleProfile();
+const at=new Date(2026,9,7,14,0);
+assert.equal(planContacts(profile,at)[0].id,'teacher');
+const office=sampleProfile();office.routines[0].place='직장';assert.equal(planContacts(office,at)[0].id,'colleague');
+office.exceptionDate='2026-10-07';office.exceptionPlace='학교';assert.equal(planContacts(office,at)[0].id,'teacher');
+const blocked=sampleProfile();blocked.contacts[0].consent=false;blocked.contacts[2].from='18:00';assert.equal(planContacts(blocked,at).length,1);
+const noApp={...profile.family,app:false};assert.equal(usableChannels(noApp).includes('푸시'),false);
+assert.equal(timeAllowed('22:00','06:00','01:00'),true);
+function run(outcome,p=profile){const ranks=planContacts(p,at);let s=startAgent(p,1000);for(let n=1400;n<60000;n+=400)s=advanceAgent(s,p,ranks,outcome,n);return s;}
+for(const scenario of ['self','nearby','second']){const s=run(scenario);assert.equal(s.result,'confirmed');assert.equal(new Set(s.requests.map(r=>r.personId)).size,s.requests.length);assert(!s.requests.some(r=>r.status==='waiting'));assert.equal(advanceAgent(s,profile,[],'unknown',100000),s);}
+assert.equal(run('unknown').result,'unconfirmed');
+assert.equal(run('conflict').result,'conflict');
+const gps=sampleProfile();gps.locationConsent=true;const onlyLocation=run('location',gps);assert.equal(onlyLocation.result,'unconfirmed');assert.equal(onlyLocation.evidence.length,1);
+const empty=sampleProfile();empty.contacts=[];assert.equal(run('self',empty).result,'unconfirmed');
+const denied=sampleProfile();denied.family.consent=false;denied.contacts.forEach(p=>p.consent=false);assert.equal(run('nearby',denied).requests.length,0);
+const e={id:'1',source:'same-person',name:'A',at:1000,direct:true,state:'safe',quote:'safe',simulated:true};
+assert.equal(assess([e,{...e,id:'2'}],2000),'pending');
+assert.equal(assess([e,{...e,id:'2',source:'other'}],302000),'pending');
+assert.equal(assess([e,{...e,id:'2',source:'other',direct:false}],2000),'pending');
+let care={stage:2,observations:[],updates:0};care=observeCare(care,'아무것도 못하겠어요');assert.equal(care.stage,3);care=observeCare(care,'아무것도 못하겠어요');assert.equal(care.stage,4);assert.equal(observeCare(care,'무관한 입력'),care);
+console.log('PASS schedules, exceptions, consent, channels, time windows, all response branches, independent sources, freshness, deduplication, stop condition, care smoothing');

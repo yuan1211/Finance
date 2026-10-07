@@ -7,34 +7,28 @@
  * 상대가 눈치채기도 한다. 그래서 위험 판정과 역질문은 소리로도 전달한다.
  * 고령 사용자에게는 이쪽이 사실상 유일한 전달 경로이기도 하다.
  *
- * STT와 달리 이 API는 기기 안에서 처리되며 음성이 외부로 나가지 않는다.
+ * 선택된 브라우저 음성에 따라 기기 또는 제공자의 음성 서비스에서 처리될 수 있다.
  */
-
-let cachedVoice: SpeechSynthesisVoice | null = null;
-let voiceResolved = false;
 
 export function isTtsSupported(): boolean {
   return typeof window !== "undefined" && "speechSynthesis" in window;
 }
 
-/**
- * 한국어 음성을 고른다.
- * getVoices()는 처음 호출 시 빈 배열을 주는 브라우저가 있어 voiceschanged를 한 번 기다린다.
- */
+/** Use the same Korean male voice for every spoken guide. */
 function pickVoice(): SpeechSynthesisVoice | null {
   if (!isTtsSupported()) return null;
-  if (voiceResolved && cachedVoice) return cachedVoice;
+  const korean=window.speechSynthesis.getVoices().filter(v=>v.lang.startsWith("ko"));
+  return korean.find(v=>/injoon|인준/i.test(v.name))
+    ?? korean.find(v=>/bongjin|봉진|gookmin|국민|male|남성|남자/i.test(v.name)&&!/female/i.test(v.name))
+    ?? null;
+}
 
-  const voices = window.speechSynthesis.getVoices();
-  if (voices.length === 0) return null;
-
-  cachedVoice =
-    voices.find((v) => v.lang === "ko-KR" && v.localService) ??
-    voices.find((v) => v.lang === "ko-KR") ??
-    voices.find((v) => v.lang.startsWith("ko")) ??
-    null;
-  voiceResolved = true;
-  return cachedVoice;
+export function createGuidanceUtterance(text:string):SpeechSynthesisUtterance|null {
+  const selected=pickVoice();
+  if(!selected)return null;
+  const u=new SpeechSynthesisUtterance(text);
+  u.voice=selected;u.lang="ko-KR";u.rate=1.2;u.pitch=0.98;u.volume=1;
+  return u;
 }
 
 /** 앱 시작 시 한 번 호출해 두면 첫 발화가 늦지 않는다 */
@@ -64,14 +58,8 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
   const synth = window.speechSynthesis;
   if (opts.interrupt !== false) synth.cancel();
 
-  const u = new SpeechSynthesisUtterance(text);
-  const voice = pickVoice();
-  if (voice) u.voice = voice;
-  u.lang = "ko-KR";
-  // 불안한 상황에서 듣는 안내라 평소보다 조금 느리게, 또렷하게 읽는다
-  u.rate = 0.95;
-  u.pitch = 1;
-  u.volume = 1;
+  const u = createGuidanceUtterance(text);
+  if(!u){opts.onEnd?.();return;}
 
   u.onstart = () => opts.onStart?.();
   u.onend = () => opts.onEnd?.();

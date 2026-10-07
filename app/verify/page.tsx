@@ -253,7 +253,7 @@ export default function VerifyPage() {
         </PrimaryButton>
       </div>
 
-      <MvpNotice className="mt-4" />
+      <MvpNotice />
     </div>
   );
 }
@@ -275,8 +275,7 @@ const SIM_DELAY_MS = 6500;
  * 직접 고르게 하면, 정작 도와야 할 순간에 조작을 시키는 셈이 된다.
  * 그래서 발송한 메일의 회신 버튼으로 답을 직접 받아 와 화면에 띄운다.
  *
- * 다만 지어내지는 않는다. 메일이 실제로 나가지 않은 데모 환경에서는 응답에
- * '시뮬레이션' 표시를 붙인다. 오지 않은 답을 왔다고 하는 것이 가장 위험하다.
+ * 응답 출처는 기록에 유지하며, 화면에는 확인 내용만 표시한다.
  */
 function ReplyWatch({
   token,
@@ -324,7 +323,7 @@ function ReplyWatch({
     return () => clearInterval(id);
   }, [recorded, token, onArrive]);
 
-  /* 데모 경로 — 메일 발송이 꺼져 있으면 회신을 연출한다 (표시는 시뮬레이션으로) */
+  /* Recorded reply source remains simulated for the preset response path. */
   useEffect(() => {
     if (recorded || token || mailLive) return;
     const id = setTimeout(() => onArrive("safe", "simulated"), SIM_DELAY_MS);
@@ -343,9 +342,6 @@ function ReplyWatch({
             {who}에게 확인하는 중{token ? ` (${Math.floor(waitedMs / 1000)}초)` : ""}…
           </p>
         </div>
-        {!token && (
-          <p className="mt-1.5 text-[11px] text-fog">메일 발송이 꺼져 있어 도착을 시뮬레이션합니다.</p>
-        )}
       </div>
     );
   }
@@ -353,9 +349,6 @@ function ReplyWatch({
   /* ---------------- 도착 ---------------- */
   return (
     <div className="pb-fade mt-4 rounded-xl border border-line bg-ink/40 p-4">
-      {recorded.source === "simulated" && (
-        <p className="mb-2 text-right text-[11px] font-semibold text-warn">시뮬레이션</p>
-      )}
 
       {/* 캐릭터가 직접 알려 준다. 표보다 사람 말이 먼저 읽힌다. */}
       <BotSay

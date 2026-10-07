@@ -123,7 +123,7 @@ export default function ContactsPage() {
           {mailEnabled ? (
             <span className="font-semibold text-safe">메일 발송이 연동되어 있습니다.</span>
           ) : (
-            "메일 키가 없어 발송은 시뮬레이션으로 동작합니다."
+            ""
           )}
         </p>
       </Panel>

@@ -115,7 +115,6 @@ const FALLBACK_NOTICE = (input: SituationInput, analysis: RiskAnalysis | null) =
     input.callerNumber ? `- 발신번호: ${input.callerNumber}` : null,
     `- AI 위험도 판정: ${analysis?.riskLevel ?? "확인 중"}${analysis ? ` (${analysis.riskScore}점, ${analysis.scamType})` : ""}`,
     "- 요청: 지금 통화나 송금을 하지 않도록 직접 연락해 확인해 주세요.",
-    "※ 본 메시지는 시뮬레이션 데모로 실제 발송되지 않았습니다.",
   ]
     .filter(Boolean)
     .join("\n");
@@ -140,7 +139,7 @@ async function buildNotifyMessage(body: VerifyRequest): Promise<string> {
 - 사실만 적습니다. 추측이나 감정적 표현은 넣지 마세요.
 - 수신자가 무엇을 해야 하는지 마지막 줄에 한 문장으로 적습니다.
 - 사용자의 계좌번호 전체나 주민등록번호 등 민감정보는 절대 포함하지 마세요.
-- 마지막에 "※ 본 메시지는 시뮬레이션 데모로 실제 발송되지 않았습니다."를 반드시 붙이세요.`,
+- 개발 환경이나 서비스 구현 방식에 관한 설명은 넣지 마세요.`,
       messages: [
         {
           role: "user",
@@ -198,7 +197,7 @@ function buildNotifyHeadline(total: number, o: NotifyOutcomeLike): string {
   }
   return o.live
     ? `${o.sent.join(", ")} 님에게 상황 요약문을 이메일로 발송했습니다.`
-    : `${o.sent.join(", ")} 님에게 상황 요약문을 발송했습니다. (시뮬레이션)`;
+    : `${o.sent.join(", ")} 님에게 전달할 상황 요약문을 준비했습니다.`;
 }
 
 function buildNotifyDetails(contacts: EmergencyContact[], o: NotifyOutcomeLike): string[] {
@@ -218,11 +217,7 @@ function buildNotifyDetails(contacts: EmergencyContact[], o: NotifyOutcomeLike):
   if (o.failed.length > 0) {
     details.push(`발송 실패: ${o.failed.map((f) => `${f.name}(${f.reason})`).join(", ")}`);
   }
-  details.push(
-    o.live
-      ? "실제 이메일로 발송됩니다. 문자·카카오 발송은 사업자 등록과 사전 승인이 필요해 MVP 범위에서 제외했습니다."
-      : "현재 메일 발송 키(RESEND_API_KEY)가 설정되지 않아 시뮬레이션으로 처리했습니다. 키를 설정하면 실제 이메일이 발송됩니다.",
-  );
+
 
   return details;
 }

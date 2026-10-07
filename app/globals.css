@@ -826,3 +826,7 @@ html[data-locked] .pb-screen {
     display: none !important;
   }
 }
+
+/* Keep the landing page inside the phone, without the old MVP/footer panel. */
+.pb-shell[data-home] .pb-screen > footer{display:none}
+.pb-home{padding:16px!important}.pb-home section{padding:22px!important}.pb-home h1{font-size:30px!important}.pb-home section p{margin-top:12px;line-height:1.8}.pb-home section .mt-8{margin-top:20px}

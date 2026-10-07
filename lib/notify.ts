@@ -48,7 +48,6 @@ function renderHtml(message: string, replyUrl?: string): string {
   </p>
   <p style="margin:16px 0 0;font-size:11px;color:#8a97ab">
     이 메일은 당사자가 피싱브레이크에 직접 등록한 비상연락처로 발송되었습니다.
-    본 서비스는 2026 금융 AI Challenge 출품작으로, 화면에 표시되는 신고 이력·계좌·전화번호는 가상의 샘플 데이터입니다.
   </p>
 </div>`;
 }

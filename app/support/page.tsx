@@ -176,7 +176,7 @@ export default function SupportPage() {
         </PrimaryButton>
       </div>
 
-      <MvpNotice className="mt-4" />
+      <MvpNotice />
     </div>
   );
 }

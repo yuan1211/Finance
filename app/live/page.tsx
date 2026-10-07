@@ -101,7 +101,7 @@ export default function LivePage() {
   /** 위험도 '높음'에서 화면을 덮는 도우미봇 */
   const [guardOpen, setGuardOpen] = useState(false);
   const [elapsed, setElapsed] = useState(0);
-  const [demoLabel, setDemoLabel] = useState<string | null>(null);
+  const [, setDemoLabel] = useState<string | null>(null);
   const [demoDone, setDemoDone] = useState(false);
   const [keepTranscript, setKeepTranscript] = useState(false);
   const [voiceOn, setVoiceOn] = useState(false);
@@ -613,17 +613,12 @@ export default function LivePage() {
                     ? "세션 종료됨"
                     : listening
                       ? source === "demo"
-                        ? "데모 대본 재생 중"
+                        ? "통화 내용 확인 중"
                         : "듣는 중"
                       : demoDone
                         ? "대본 재생 완료"
                         : "연결 중…"}
                 </span>
-                {demoLabel && (
-                  <span className="rounded-md bg-warn/12 px-2 py-0.5 text-[11px] font-semibold text-warn ring-1 ring-warn/25">
-                    데모
-                  </span>
-                )}
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <VoiceToggle
@@ -858,7 +853,7 @@ function IdlePanel({
           </button>
           {supported === false && (
             <p className="text-xs leading-relaxed text-[#5f738a]">
-              이 브라우저는 음성 인식을 지원하지 않습니다. 아래 데모 모드를 이용하세요.
+              이 브라우저는 음성 인식을 지원하지 않습니다. 아래 통화 상황을 선택해 주세요.
             </p>
           )}
         </div>
@@ -866,8 +861,8 @@ function IdlePanel({
 
       <div className="rounded-[26px] border border-[#d6e7f7] bg-[#f0f7ff] p-4 shadow-[0_10px_35px_rgba(25,55,85,0.04)] @md:p-6">
         <div className="flex items-center gap-2">
-          <h2 className="text-[15px] font-bold text-[#244f78]">데모 모드</h2>
-          <span className="text-[11px] text-[#5f738a]">마이크 없이 시연</span>
+          <h2 className="text-[15px] font-bold text-[#244f78]">통화 상황 선택</h2>
+          <span className="text-[11px] text-[#5f738a]"></span>
         </div>
 
         <ul className="mt-3 flex flex-wrap gap-2">

@@ -6,7 +6,7 @@ import { careChoices, observeCare, type CareState, type SafetyProfile } from "@/
 
 import { createRecognizer, speechFatalMessage, type Recognizer } from "@/lib/speech";
 
-import { createGuidanceUtterance } from "@/lib/speech-out";
+import { cancelSpeech, preloadSpeech, speak as playGuide, warmUpVoices } from "@/lib/speech-out";
 
 import styles from "./page.module.css";
 
@@ -171,7 +171,7 @@ export default function CareGuide({ tone, finished=false, needHelp=false, contex
   const used=useRef(new Set<string>());
   const announced=useRef(new Set<string>());
 
-  useEffect(()=>{latest.current={finished,sequence,announcement};resume.current?.();});
+  useEffect(()=>{latest.current={finished,sequence,announcement};if(voice&&announcement)preloadSpeech(announcement.lines.filter((_,i)=>!announced.current.has(`${announcement.id}:${i}`)));resume.current?.();});
 
   useEffect(()=>{
 
@@ -190,8 +190,6 @@ export default function CareGuide({ tone, finished=false, needHelp=false, contex
     let disposed=false, running=false, scheduled=false;
 
     let timer:ReturnType<typeof setTimeout>;
-
-    const synth=window.speechSynthesis;
 
     const schedule=()=>{
 
@@ -221,31 +219,20 @@ export default function CareGuide({ tone, finished=false, needHelp=false, contex
           setSpoken(line);
         }
         if(!line)return;
-        if(!voice){used.current.add(line);scheduled=true;timer=setTimeout(()=>{scheduled=false;schedule();},7000);return;}
-
-        if(!synth){setVoice(false);setBlocked(true);return;}
+        if(!voice){scheduled=true;timer=setTimeout(()=>{scheduled=false;schedule();},7000);return;}
 
         running=true;
-
-        const u=createGuidanceUtterance(line);
-        if(!u){running=false;setVoice(false);setBlocked(true);setError("한국어 남성 음성을 사용할 수 없어요.");return;}
-
-        if(resultKey)announced.current.add(resultKey);else used.current.add(line);
-        u.onend=()=>{
-
-          if(disposed)return;
-
-          running=false;
-
-          if(latest.current.finished)setSpoken("");
-
-          schedule();
-
-        };
-
-        u.onerror=()=>{if(!disposed){running=false;setVoice(false);setBlocked(true);}};
-
-        synth.speak(u);
+        const selectedLine=line;
+        const nextLines=current.finished
+          ? current.announcement!.lines.filter((_,i)=>!announced.current.has(`${current.announcement!.id}:${i}`))
+          : current.sequence.filter(value=>!used.current.has(value));
+        preloadSpeech(nextLines);
+        playGuide(selectedLine,{
+          interrupt:false,
+          onStart:()=>{if(disposed)return;setError("");setBlocked(false);if(resultKey)announced.current.add(resultKey);else used.current.add(selectedLine);},
+          onEnd:()=>{if(disposed)return;running=false;if(latest.current.finished)setSpoken("");schedule();},
+          onError:message=>{if(disposed)return;running=false;setVoice(false);setBlocked(true);setError(message);},
+        });
 
       },0);
 
@@ -255,15 +242,15 @@ export default function CareGuide({ tone, finished=false, needHelp=false, contex
 
     schedule();
 
-    return ()=>{disposed=true;resume.current=null;clearTimeout(timer);synth?.cancel();};
+    return ()=>{disposed=true;resume.current=null;clearTimeout(timer);cancelSpeech();};
 
   },[listening,visible,voice]);
 
-  function toggleVoice(){window.speechSynthesis?.cancel();setBlocked(false);setVoice(v=>!v);}
+  function toggleVoice(){cancelSpeech();if(!voice)warmUpVoices();setBlocked(false);setError("");setVoice(v=>!v);}
 
   function respond(value:string){if(!value.trim())return;setLast(value.trim().slice(0,300));setState(s=>observeCare(s,value));setText("");}
 
-  useEffect(()=>()=>{rec.current?.stop();window.speechSynthesis?.cancel();},[]);
+  useEffect(()=>()=>{rec.current?.stop();cancelSpeech();},[]);
 
   useEffect(()=>{
 
@@ -281,7 +268,7 @@ export default function CareGuide({ tone, finished=false, needHelp=false, contex
 
     if(listening){rec.current?.stop();setListening(false);return;}
 
-    window.speechSynthesis?.cancel();setError("");
+    cancelSpeech();setError("");
 
     rec.current=createRecognizer({onFinal:value=>{respond(value);rec.current?.stop();setListening(false);},onInterim:()=>{},onFatal:reason=>{setError(speechFatalMessage(reason));setListening(false);},onListening:setListening});
 
@@ -291,26 +278,13 @@ export default function CareGuide({ tone, finished=false, needHelp=false, contex
 
   }
 
-  function speak(){if(window.speechSynthesis&&!createGuidanceUtterance(message)){setError("이 브라우저에서 한국어 남성 음성을 찾지 못했습니다.");return;}if(!window.speechSynthesis){setError("이 브라우저는 음성 읽기를 지원하지 않아요.");return;}rec.current?.stop();setListening(false);setVoice(false);setManual(n=>n+1);}
+  function speak(){warmUpVoices();rec.current?.stop();setListening(false);setVoice(false);setError("");setManual(n=>n+1);}
 
   useEffect(()=>{
-
     if(!manual)return;
-
-    if(!window.speechSynthesis)return;
-
-    const synth=window.speechSynthesis;
-
-    synth.cancel();
-
-    const u=createGuidanceUtterance(message);
-    if(!u)return;
-    synth.speak(u);
-
-    return ()=>synth.cancel();
-
-    // Read only on an explicit request, not when the waiting message changes.
-
+    playGuide(message,{onError:message=>{setError(message);setBlocked(true);}});
+    return ()=>cancelSpeech();
+    // Read only on explicit request, not when the waiting message changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[manual]);
 

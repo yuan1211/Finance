@@ -28,3 +28,5 @@
 @media(max-height:760px){.connectedScreen .caller{margin:8px 0}.connectedScreen .caller h1{margin-top:4px;font-size:21px}.connectedScreen .caller>p:not(.eyebrow){margin-top:4px}.connectedScreen .check{padding:10px}.connectedScreen .transcript{margin-top:10px;padding:10px}.connectedScreen .transcript>div{max-height:150px;gap:6px}.connectedScreen .controls{padding:8px 14px;gap:6px}.connectedScreen .utilities{margin-bottom:0}.connectedScreen .utilities button{padding:8px}.connectedScreen .callButton{width:48px;height:48px}.connectedScreen .disclaimer{margin-top:5px}}
 
 .voiceError{font-size:11px;line-height:1.4;color:#5f738a;margin:0}
+
+.dangerResult{background:#fff2f2;border-color:#efb0b6}.dangerResult h2{color:#b42335}.dangerResult p{color:#7d2532}.dangerResult small{color:#8b5861}

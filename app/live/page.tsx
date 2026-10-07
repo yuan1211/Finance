@@ -6,7 +6,9 @@ import { useCase } from "@/lib/case-store";
 import { buildCalmScript, buildGuardianSteps } from "@/lib/guardian";
 import { DEMO_SCRIPTS, parseScriptText, type DemoScript, type ScriptLine } from "@/lib/demo-scripts";
 import { createRecognizer, isSpeechSupported, speechFatalMessage, type Recognizer } from "@/lib/speech";
-import { cancelSpeech, isTtsSupported, speak, warmUpVoices } from "@/lib/speech-out";
+// This older screen can read freeform analysis. Keep it local to the browser;
+// only the call-demo's fixed safety-result templates have server voice consent.
+import { cancelSpeech, isTtsSupported, speak, warmUpVoices } from "@/lib/live-speech-out";
 import {
   describeNonverbal,
   hasPressurePattern,
